@@ -149,7 +149,9 @@ def flag(
         Whether multiple given values overrides the previous value. The default
         value depends on the annotation given.
     """
-    return Flag(name=name, description=description, aliases=aliases, default=default, max_args=max_args, override=override)
+    return Flag(
+        name=name, description=description, aliases=aliases, default=default, max_args=max_args, override=override
+    )
 
 
 def validate_flag_name(name: str, forbidden: Set[str]):

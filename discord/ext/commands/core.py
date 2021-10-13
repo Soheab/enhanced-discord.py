@@ -1234,7 +1234,7 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
 
         description = self.option_descriptions[name]
         origin = getattr(annotation, "__origin__", None)
-        
+
         if inspect.isclass(annotation) and issubclass(annotation, FlagConverter):
             return [
                 param
