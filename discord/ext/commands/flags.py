@@ -98,8 +98,8 @@ class Flag:
         Whether multiple given values overrides the previous value.
     """
 
-    name: str = MISSING,
-    description: str = MISSING,
+    name: str = MISSING
+    description: str = MISSING
     aliases: List[str] = field(default_factory=list)
     attribute: str = MISSING
     annotation: Any = MISSING

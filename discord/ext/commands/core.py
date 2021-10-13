@@ -1226,7 +1226,7 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
             ctx.command = original
 
     def _param_to_options(
-        self, name: str, annotation: Any, required: bool, varadic: bool, description=None
+        self, name: str, annotation: Any, required: bool, varadic: bool, description: Optional[str] = None
     ) -> List[Optional[ApplicationCommandInteractionDataOption]]:
 
         if description is not None:
