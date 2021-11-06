@@ -1,11 +1,12 @@
 from typing import Optional, Dict, Any, List, Union, Tuple
 
 import discord
+from discord.ext import commands
 
 
 class PaginatorButton(discord.ui.Button["Paginator"]):
     def __init__(self, *, label: str, style: discord.ButtonStyle = discord.ButtonStyle.blurple):
-        super().__init__(label=label, style=style, custom_id=f"{label.lower()}_button")
+        super().__init__(label=label, style=style)
 
     async def callback(self, interaction: discord.Interaction):
         assert self.view is not None  # so that the type checker doesn't complain
@@ -20,8 +21,8 @@ class PaginatorButton(discord.ui.Button["Paginator"]):
         # Update the paginator
 
         # easier to access
-        left_button: PaginatorButton = self.view.children[0]  # type: ignore
-        right_button: PaginatorButton = self.view.children[1]  # type: ignore
+        left_button: PaginatorButton = discord.utils.get(self.view.children, custom_id="left_button")  # type: ignore
+        right_button: PaginatorButton = discord.utils.get(self.view.children, custom_id="right_button")  # type: ignore
 
         # disable the buttons if needed
 
@@ -33,7 +34,7 @@ class PaginatorButton(discord.ui.Button["Paginator"]):
             right_button.disabled = False
             left_button.disabled = False
 
-        keywords, _ = self.view._handle_page_content()
+        keywords, _ = self.view.handle_page_content()
         assert interaction.message is not None
         await interaction.message.edit(**keywords)
 
@@ -42,7 +43,6 @@ class Paginator(discord.ui.View):
     def __init__(
         self,
         pages: Union[List[discord.Embed], List[str]],
-        /,
         *,
         author_id: int = None,
         disable_on_timeout: bool = False,
@@ -72,40 +72,21 @@ class Paginator(discord.ui.View):
         self.page_string = f"Page {self.current_page}/{self.max_pages}"
 
         # adds the buttons to the view
-        self.__add_buttons()
+        self.add_buttons()
 
-    # main way to send the menu
-    async def send(
-        self, send_to: Union[discord.abc.Messageable, discord.Message], *args: Any, **kwargs: Any
-    ) -> discord.Message:
+    def add_buttons(self):
+        if all(b in ["left", "right"] for b in self.buttons.keys()) is False:
+            raise ValueError("Paginator buttons must have a left and right button")
 
-        # get the page content
-        keywords, kwargs = self._handle_page_content(kwargs)  # type: ignore
-
-        # raise if send_to is None
-        if not send_to:
-            raise ValueError("send_to can not be None")
-
-        # check if send_to is a message or channel. If it is a message we reply to it else we send it to the channel
-        if isinstance(send_to, discord.Message):
-            # send_to is a message, so we reply to it
-            self.message = await send_to.reply(*args, **keywords, **kwargs)
-        else:
-            # send_to is a channel, so we send it
-            self.message = await send_to.send(*args, **keywords, **kwargs)
-
-        # return the sent message
-        return self.message
-
-    def __add_buttons(self):
         button: PaginatorButton
 
         # loop through the buttons and adding them to the view
-        for button in self.buttons.values():
+        for name, button in self.buttons.items():
             if not isinstance(button, PaginatorButton):
-                raise TypeError(f"{button} is not a PaginatorButton")
+                raise TypeError(f"{button.__class__} is not a PaginatorButton")
 
-            assert button.label is not None  # so that the type checker doesn't complain
+            # set the custom_id
+            button.custom_id = f"{name}_button"
 
             # check if the button label is called left or right
             if button.custom_id == "left_button":
@@ -124,48 +105,64 @@ class Paginator(discord.ui.View):
                 button.disabled = False
             self.add_item(button)
 
-    def _handle_page_content(
+    # main way to send the menu
+    async def send(
+        self, send_to: Union[discord.abc.Messageable, discord.Message], *args: Any, **kwargs: Any
+    ) -> discord.Message:
+
+        # get the page content
+        keywords, kwargs = self.handle_page_content(kwargs)  # type: ignore
+
+        # raise if send_to is None
+        if not send_to:
+            raise ValueError("send_to can not be None")
+
+        # check if send_to is a message or channel. If it is a message we reply to it else we send it to the channel
+        if isinstance(send_to, discord.Message):
+            # send_to is a message, so we reply to it
+            self.message = await send_to.reply(*args, **keywords, **kwargs)  # type: ignore
+        else:
+            # send_to is a channel, so we send it
+            self.message = await send_to.send(*args, **keywords, **kwargs)  # type: ignore
+
+        # return the sent message
+        assert self.message is not None  # so that the type checker doesn't complain
+        return self.message
+
+    def handle_page_content(
         self, kwargs: Optional[Any] = None
-    ) -> Union[Tuple[Dict[str, Any], None], Tuple[Dict[str, Any], Dict[str, Any]],]:
-        self.page_string: str = f"Page {self.current_page + 1}/{self.max_pages}"
+    ) -> Union[Tuple[Dict[str, Any], None], Tuple[Dict[str, Any], Dict[str, Any]], Tuple[dict, None]]:
+        self.page_string: str = f"Page {self.current_page + 1}/{self.max_pages}"  # type: ignore
 
         # get page content aka see if it's an embed or string.
-        keywords = self._get_page_data(self.current_page)
+        keywords = self.get_page_data(self.current_page)
 
         # check if keywords is None aka page is over the max pages
         if keywords is None:
             return {}, kwargs
 
+        if kwargs is not None:
+            # remove any content and embeds provided via send because that will conflict with the page content
+            try:
+                del kwargs["content"]
+                del kwargs["embed"]
+                del kwargs["embeds"]
+            except KeyError:
+                pass
+
         # check if page is a string
         if keywords["content"] is not None:
-            if kwargs is not None:
-                # remove any content user provided via send because that will conflict with the page content
-                try:
-                    kwargs.pop("content")
-                except KeyError:
-                    pass
-
             # add the page string (current_page/max_pages) as content after the page content
             keywords["content"] += f"\n\n{self.page_string}"
 
         # check if page is an embed
         elif keywords["embed"] is not None:
-
-            if kwargs is not None:
-                # remove any content embeds provided via send because that will conflict with the page content
-                if kwargs in ["embeds", "embed"]:
-                    try:
-                        kwargs.pop("embeds")
-                        kwargs.pop("embed")
-                    except KeyError:
-                        pass
-
-            # add the page string (current_page/max_pages) asthe footer of the embed
+            # add the page string (current_page/max_pages) as the footer of the embed
             keywords["embed"].set_footer(text=self.page_string)
 
         return keywords, kwargs
 
-    def _get_page_data(self, page_number: int) -> Optional[Dict[str, Any]]:
+    def get_page_data(self, page_number: int) -> Optional[Dict[str, Any]]:
         page: Union[str, discord.Embed, None]
 
         # check if page is over the max pages and return None
