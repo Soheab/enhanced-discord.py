@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Type, TypeVar, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Set, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 
 import discord.abc
 from .asset import Asset
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from .state import ConnectionState
     from .types.channel import DMChannel as DMChannelPayload
     from .types.user import User as UserPayload
-
+    from .member import Member
 
 __all__ = (
     "User",
@@ -278,6 +278,57 @@ class BaseUser(_UserTag):
             return True
 
         return any(user.id == self.id for user in message.mentions)
+
+    async def upgrade(self: BU, **options: Any) -> Union[BU, User, Member]:
+        """|coro|
+
+        Upgrades the user if possible. This works by re-fetching the user, or performing other such API calls.
+
+        +-------------+------------------+-------------------------------------------------------------------+
+        | Name        | Type             | Description                                                       |
+        +=============+==================+===================================================================+
+        | banner      | :class:`bool`    | This sets the `banner` attribute to the current banner, if any.   |
+        +-------------+------------------+-------------------------------------------------------------------+
+        | guild       | :class:`.Guild`  | This returns the :class:`.Member` variant of the :class:`.User`.  |
+        +-------------+------------------+-------------------------------------------------------------------+
+
+        Parameters
+        -----------
+        **options:
+          The attributes to upgrade. Refer to above for a list of possible options.
+
+
+        Raises
+        -------
+
+        HTTPException
+            Fetching the member failed.
+        NotFound
+            A member with that ID does not exist.
+
+        Returns
+        -------
+        Union[:class:`User`, :class:`Member`]
+            The upgraded version of the user.
+        """
+        create_new_obj: Set = {"banner"}
+        for key in options.copy():
+            if getattr(self, key, None) is not None:
+                del options[key]
+
+        user: Union[BU, User] = self
+        if any(create_new_obj.intersection(options.keys())):
+            new_data = await self._state.http.get_user(self.id)
+            user = User(state=self._state, data=new_data)
+
+        if "guild" in options:
+            guild = options["guild"]
+            member = guild.get_member(self.id) or await guild.fetch_member(self.id)
+            member._user._banner = user._banner  # type: ignore
+            member._user._accent_colour = user._accent_colour  # type: ignore
+            return member
+
+        return user
 
 
 class ClientUser(BaseUser):
