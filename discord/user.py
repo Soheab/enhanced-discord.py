@@ -284,13 +284,13 @@ class BaseUser(_UserTag):
 
         Upgrades the user if possible. This works by re-fetching the user, or performing other such API calls.
 
-        +-------------+------------------+-------------------------------------------------------------------+
-        | Name        | Type             | Description                                                       |
-        +=============+==================+===================================================================+
-        | banner      | :class:`bool`    | This sets the `banner` attribute to the current banner, if any.   |
-        +-------------+------------------+-------------------------------------------------------------------+
-        | guild       | :class:`.Guild`  | This returns the :class:`.Member` variant of the :class:`.User`.  |
-        +-------------+------------------+-------------------------------------------------------------------+
+        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
+        | Name        | Type             | Description                                                                                           |
+        +=============+==================+=======================================================================================================+
+        | banner      | :class:`bool`    | This sets :attr`banner` and :attr:`accent_colour`attributes to the current banner or colour, if any.  |
+        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
+        | guild       | :class:`.Guild`  | This returns the :class:`.Member` variant of the :class:`.User`.                                      |
+        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
 
         Parameters
         -----------
@@ -324,9 +324,9 @@ class BaseUser(_UserTag):
         if "guild" in options:
             guild = options["guild"]
             member = guild.get_member(self.id) or await guild.fetch_member(self.id)
-            member._user._banner = user._banner  # type: ignore
-            member._user._accent_colour = user._accent_colour  # type: ignore
-            return member
+
+            member._user = user
+            user = member
 
         return user
 

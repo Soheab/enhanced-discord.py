@@ -42,6 +42,7 @@ from .permissions import Permissions
 from .enums import Status, try_enum
 from .colour import Colour
 from .object import Object
+from copy import copy, deepcopy
 
 __all__ = (
     "VoiceState",
@@ -921,15 +922,15 @@ class Member(discord.abc.Messageable, _UserTag):
     async def upgrade(self, **options: Any) -> Union[Member, BaseUser, User]:
         """|coro|
 
-        Upgrades the user if possible. This works by re-fetching the user, or performing other such API calls.
+        Upgrades the member if possible. This works by re-fetching the user/member, or performing other such API calls.
 
-        +-------------+----------------+--------------------------------------------------------------------------------------------------+
-        | Name        | Type           | Description                                                                                      |
-        +=============+================+==================================================================================================+
-        | banner      | :class:`bool`  | This sets the `banner` attribute to the current banner, if any.                                  |
-        +-------------+----------------+--------------------------------------------------------------------------------------------------+
-        | presences   | :class:`bool`  | This sets the following attributes, :attr:`.activities`, :attr:`.joined_at` and :attr:`.status`. |
-        +-------------+----------------+--------------------------------------------------------------------------------------------------+
+        +-------------+----------------+------------------------------------------------------------------------------------------------------+
+        | Name        | Type           | Description                                                                                          |
+        +=============+================+================================================================================================== ===+
+        | banner      | :class:`bool`  | This sets :attr`banner` and :attr:`accent_colour`attributes to the current banner or colour, if any. |
+        +-------------+----------------+------------------------------------------------------------------------------------------------------+
+        | presences   | :class:`bool`  | This sets the following attributes, :attr:`.activities` and :attr:`.status`.                         |
+        +-------------+----------------+------------------------------------------------------------------------------------------------------+
 
         Parameters
         -----------
@@ -960,13 +961,10 @@ class Member(discord.abc.Messageable, _UserTag):
                 del options[key]
 
         member = self
-
         user: Union[BaseUser, User, Member] = await self._user.upgrade(**options)
         if any(create_new_obj.intersection(options.keys())):
             new_data = await self._state.http.get_member(self.guild.id, self.id)
             member = Member(data=new_data, guild=self.guild, state=self._state)
-            member._banner = user._banner  # type: ignore
-            member._user._accent_colour = user._accent_colour  # type: ignore
 
         if "presences" in options:
             members: List[Member] = await self.guild.query_members(
@@ -975,5 +973,7 @@ class Member(discord.abc.Messageable, _UserTag):
             new_member = members[0]
             member.activities = new_member.activities
             member._client_status = new_member._client_status
+            member = new_member
 
+        member._user = user  # type: ignore
         return member
