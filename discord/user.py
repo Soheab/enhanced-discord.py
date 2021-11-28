@@ -282,15 +282,15 @@ class BaseUser(_UserTag):
     async def upgrade(self: BU, **options: Any) -> Union[BU, User, Member]:
         """|coro|
 
-        Upgrades the user if possible. This works by re-fetching the user, or performing other such API calls.
+        Upgrades the user if possible. This works by re-fetching the user/member, or performing other such API calls.
 
-        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
-        | Name        | Type             | Description                                                                                           |
-        +=============+==================+=======================================================================================================+
-        | banner      | :class:`bool`    | This sets :attr`banner` and :attr:`accent_colour`attributes to the current banner or colour, if any.  |
-        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
-        | guild       | :class:`.Guild`  | This returns the :class:`.Member` variant of the :class:`.User`.                                      |
-        +-------------+------------------+-------------------------------------------------------------------------------------------------------+
+        +-------------+------------------+-----------------------------------------------------------------------------------------------------------+
+        | Name        | Type             | Description                                                                                               |
+        +=============+==================+===========================================================================================================+
+        | banner      | :class:`bool`    | This sets :attr:`.banner` and :attr:`.accent_colour` attributes to the current banner or colour, if any.  |
+        +-------------+------------------+-----------------------------------------------------------------------------------------------------------+
+        | guild       | :class:`.Guild`  | This returns the :class:`.Member` variant of the :class:`.User`.                                          |
+        +-------------+------------------+-----------------------------------------------------------------------------------------------------------+
 
         Parameters
         -----------
