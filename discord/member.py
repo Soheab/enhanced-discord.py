@@ -42,7 +42,6 @@ from .permissions import Permissions
 from .enums import Status, try_enum
 from .colour import Colour
 from .object import Object
-from copy import copy, deepcopy
 
 __all__ = (
     "VoiceState",
