@@ -967,13 +967,8 @@ class Member(discord.abc.Messageable, _UserTag):
             member = Member(data=new_data, guild=self.guild, state=self._state)
 
         if "presences" in options:
-            members: List[Member] = await self.guild.query_members(
-                limit=1, cache=False, user_ids=[self.id], presences=True
-            )
-            new_member = members[0]
-            member.activities = new_member.activities
-            member._client_status = new_member._client_status
-            member = new_member
+            members: List[Member] = await self.guild.query_members(limit=1, user_ids=[self.id], presences=True)
+            member = members[0]
 
         member._user = user  # type: ignore
         return member
