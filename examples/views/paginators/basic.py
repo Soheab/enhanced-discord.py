@@ -80,6 +80,9 @@ class Paginator(discord.ui.View):
 
         button: PaginatorButton
 
+        if self.max_pages <= 1:
+            return  # no need to add buttons if there is only one page
+            
         # loop through the buttons and adding them to the view
         for name, button in self.buttons.items():
             if not isinstance(button, PaginatorButton):
