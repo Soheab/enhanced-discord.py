@@ -275,6 +275,10 @@ class Paginator(discord.ui.View):
         assert self.message is not None  # so that the type checker doesn't complain
         return self.message
 
+    @property
+    def view(self):
+        return self
+
 
 class Bot(commands.Bot):
     def __init__(self):
