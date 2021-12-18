@@ -292,6 +292,7 @@ class Guild(Hashable):
         "_threads",
         "approximate_member_count",
         "approximate_presence_count",
+        "timed_out_members",
     )
 
     _PREMIUM_GUILD_LIMITS: ClassVar[Dict[Optional[int], _GuildLimit]] = {
@@ -944,6 +945,14 @@ class Guild(Hashable):
     def created_at(self) -> datetime.datetime:
         """:class:`datetime.datetime`: Returns the guild's creation time in UTC."""
         return utils.snowflake_time(self.id)
+
+    @property
+    def timed_out_members(self) -> List[Member]:
+        """List[:class:`Member`]: Returns a list of members that are timed out.
+
+        This works by checking if :attr:`Member.timeout_until` is not ``None``.
+        """
+        return [m for m in self.members if m.timeout_until is not None]
 
     def get_member_named(self, name: str, /) -> Optional[Member]:
         """Returns the first member found that matches the name provided.
