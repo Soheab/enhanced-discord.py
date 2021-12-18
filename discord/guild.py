@@ -767,6 +767,14 @@ class Guild(Hashable):
         return [member for member in self.members if not member.bot]
 
     @property
+    def timed_out_members(self) -> List[Member]:
+        """List[:class:`Member`]: Returns a list of members that are timed out.
+
+        This works by checking if :attr:`Member.timeout_until` is not ``None``.
+        """
+        return [m for m in self.members if not m.timeout_until]
+
+    @property
     def bots(self) -> List[Member]:
         """List[:class:`Member`]: A list of bots that belong to this guild.
 
@@ -945,14 +953,6 @@ class Guild(Hashable):
     def created_at(self) -> datetime.datetime:
         """:class:`datetime.datetime`: Returns the guild's creation time in UTC."""
         return utils.snowflake_time(self.id)
-
-    @property
-    def timed_out_members(self) -> List[Member]:
-        """List[:class:`Member`]: Returns a list of members that are timed out.
-
-        This works by checking if :attr:`Member.timeout_until` is not ``None``.
-        """
-        return [m for m in self.members if m.timeout_until is not None]
 
     def get_member_named(self, name: str, /) -> Optional[Member]:
         """Returns the first member found that matches the name provided.
