@@ -47,6 +47,7 @@ class Member(PartialMember, total=False):
     permissions: str
     communication_disabled_until: str
 
+
 class _OptionalMemberWithUser(PartialMember, total=False):
     avatar: str
     nick: str
