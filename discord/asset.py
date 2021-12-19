@@ -246,6 +246,17 @@ class Asset(AssetMixin):
         )
 
     @classmethod
+    def _from_member_banner(cls, state, guild_id: int, member_id: int, banner_hash: str) -> Asset:
+        animated = banner_hash.startswith("a_")
+        format = "gif" if animated else "png"
+        return cls(
+            state,
+            url=f"{cls.BASE}/guilds/{guild_id}/users/{member_id}/banners/{banner_hash}.{format}?size=512",
+            key=banner_hash,
+            animated=animated,
+        )
+
+    @classmethod
     def _from_role_icon(cls, state, role_id: int, role_hash: str) -> Asset:
         return cls(
             state,

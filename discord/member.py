@@ -271,6 +271,8 @@ class Member(discord.abc.Messageable, _UserTag):
         "_user",
         "_state",
         "_avatar",
+        "_guild_banner",
+        "user_banner",
     )
 
     if TYPE_CHECKING:
@@ -286,7 +288,6 @@ class Member(discord.abc.Messageable, _UserTag):
         create_dm = User.create_dm
         mutual_guilds: List[Guild]
         public_flags: PublicUserFlags
-        banner: Optional[Asset]
         accent_color: Optional[Colour]
         accent_colour: Optional[Colour]
 
@@ -302,6 +303,8 @@ class Member(discord.abc.Messageable, _UserTag):
         self.nick: Optional[str] = data.get("nick", None)
         self.pending: bool = data.get("pending", False)
         self._avatar: Optional[str] = data.get("avatar")
+        self._guild_banner: Optional[str] = data.get("banner")
+        self.user_banner: Optional[Asset] = self._user.banner
 
     def __str__(self) -> str:
         return str(self._user)
@@ -536,6 +539,37 @@ class Member(discord.abc.Messageable, _UserTag):
         if self._avatar is None:
             return None
         return Asset._from_guild_avatar(self._state, self.guild.id, self.id, self._avatar)
+
+    @property
+    def display_banner(self) -> Optional[Asset]:
+        """:class:`Asset`: Returns the member's display banner.
+
+        For regular members this is just their banner, but
+        if they have a guild specific banner then that
+        is returned instead.
+
+        .. versionadded:: 2.0
+
+
+        .. note::
+            This information is only available via :meth:`Client.fetch_user`.
+        """
+        return self.guild_banner or self.user_banner
+
+    @property
+    def guild_banner(self) -> Optional[Asset]:
+        """Optional[:class:`Asset`]: Returns an :class:`Asset` for the guild banner
+        the member has. If unavailable, ``None`` is returned.
+
+        .. versionadded:: 2.0
+
+
+        .. note::
+            This information is only available via :meth:`Client.fetch_user`.
+        """
+        if self._guild_banner is None:
+            return None
+        return Asset._from_member_banner(self._state, self.guild.id, self.id, self._guild_banner)
 
     @property
     def activity(self) -> Optional[ActivityTypes]:
