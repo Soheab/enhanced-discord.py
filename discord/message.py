@@ -1200,6 +1200,7 @@ class Message(Hashable):
         suppress: bool = ...,
         delete_after: Optional[float] = ...,
         allowed_mentions: Optional[AllowedMentions] = ...,
+        file: Optional[File] = ...,
         view: Optional[View] = ...,
     ) -> Message:
         ...
@@ -1214,6 +1215,7 @@ class Message(Hashable):
         suppress: bool = ...,
         delete_after: Optional[float] = ...,
         allowed_mentions: Optional[AllowedMentions] = ...,
+        files: List[File] = ...,
         view: Optional[View] = ...,
     ) -> Message:
         ...
@@ -1227,6 +1229,8 @@ class Message(Hashable):
         suppress: bool = MISSING,
         delete_after: Optional[float] = None,
         allowed_mentions: Optional[AllowedMentions] = MISSING,
+        file: Optional[File] = MISSING,
+        files: List[File] = MISSING,
         view: Optional[View] = MISSING,
     ) -> Message:
         """|coro|
@@ -1254,6 +1258,10 @@ class Message(Hashable):
         attachments: List[:class:`Attachment`]
             A list of attachments to keep in the message. If ``[]`` is passed
             then all attachments are removed.
+        file: Optional[:class:`File`]
+            ...
+        files: List[:class:`File`]
+            ...
         suppress: :class:`bool`
             Whether to suppress embeds for the message. This removes
             all the embeds if set to ``True``. If set to ``False``
@@ -1301,9 +1309,13 @@ class Message(Hashable):
             if embed is None:
                 payload["embeds"] = []
             else:
-                payload["embeds"] = [embed.to_dict()]
-        elif embeds is not MISSING:
-            payload["embeds"] = [e.to_dict() for e in embeds]
+                embeds = [embed]
+
+        if embeds is not MISSING:
+            if embeds == []:
+                payload["embeds"] = []
+            else:
+                payload["embeds"] = [e.to_dict() for e in embeds]
 
         if suppress is not MISSING:
             flags = MessageFlags._from_value(self.flags.value)
@@ -1321,7 +1333,10 @@ class Message(Hashable):
                     payload["allowed_mentions"] = allowed_mentions.to_dict()
 
         if attachments is not MISSING:
-            payload["attachments"] = [a.to_dict() for a in attachments]
+            if attachments == []:
+                payload["attachments"] = []
+            else:
+                payload["attachments"] = [a.to_dict() for a in attachments]
 
         if view is not MISSING:
             self._state.prevent_view_updates_for(self.id)
@@ -1330,7 +1345,29 @@ class Message(Hashable):
             else:
                 payload["components"] = []
 
-        data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+        if file is not MISSING and files is not MISSING:
+            raise InvalidArgument("cannot pass both file and files parameter to edit()")
+
+        if file is not MISSING:
+            if not isinstance(file, File):
+                raise InvalidArgument("file parameter must be File")
+
+            files = [file]
+
+        if files is not MISSING:
+            if len(files) > 10:
+                raise InvalidArgument("files parameter must be a list of up to 10 elements")
+            elif not all(isinstance(file, File) for file in files):
+                raise InvalidArgument("files parameter must be a list of File")
+
+            try:
+                data = await self._state.http.edit_files(self.channel.id, self.id, files=files, **payload)
+            finally:
+                for f in files:
+                    f.close()
+        else:
+            data = await self._state.http.edit_message(self.channel.id, self.id, **payload)
+
         message = Message(state=self._state, channel=self.channel, data=data)
 
         if view and not view.is_finished():
