@@ -474,6 +474,7 @@ class HTTPClient:
     def multipart_request_helper(
         self,
         route: Route,
+        *,
         files: Sequence[File],
         allowed_mentions: Optional[message.AllowedMentions] = None,
         attachments: Optional[List[message.Attachment]] = None,
@@ -525,7 +526,7 @@ class HTTPClient:
 
     def send_files(self, channel_id: Snowflake, *, files: Sequence[File], **fields: Any) -> Response[message.Message]:
         r = Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id)
-        return self.multipart_request_helper(r, files, **fields)
+        return self.multipart_request_helper(r, files=files, **fields)
 
     def edit_files(
         self,
@@ -537,7 +538,7 @@ class HTTPClient:
     ) -> Response[message.Message]:
         fields["tts"] = None
         r = Route("PATCH", "/channels/{channel_id}/messages/{message_id}", channel_id=channel_id, message_id=message_id)
-        return self.multipart_request_helper(r, files, **fields)
+        return self.multipart_request_helper(r, files=files, **fields)
 
     def delete_message(
         self, channel_id: Snowflake, message_id: Snowflake, *, reason: Optional[str] = None
