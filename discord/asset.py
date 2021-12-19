@@ -254,6 +254,15 @@ class Asset(AssetMixin):
             animated=False,
         )
 
+    @classmethod
+    def _from_channel_banner(cls, state, channel_id: int, banner_hash: str) -> Asset:
+        return cls(
+            state,
+            url=f"{cls.BASE}/channels/{channel_id}/banners/{banner_hash}.png?size=512",
+            key=banner_hash,
+            animated=False,
+        )
+
     def __str__(self) -> str:
         return self._url
 

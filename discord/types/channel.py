@@ -61,6 +61,7 @@ class PartialChannel(_BaseChannel):
 class _TextChannelOptional(TypedDict, total=False):
     topic: str
     last_message_id: Optional[Snowflake]
+    banner: Optional[str]
     last_pin_timestamp: str
     rate_limit_per_user: int
     default_auto_archive_duration: ThreadArchiveDuration
