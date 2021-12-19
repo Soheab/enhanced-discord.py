@@ -1258,10 +1258,14 @@ class Message(Hashable):
         attachments: List[:class:`Attachment`]
             A list of attachments to keep in the message. If ``[]`` is passed
             then all attachments are removed.
-        file: Optional[:class:`File`]
-            ...
-        files: List[:class:`File`]
-            ...
+        file: :class:`~discord.File`
+            The file to upload.
+
+            .. versionadded:: 2.0
+        files: List[:class:`~discord.File`]
+            A list of files to upload. Must be a maximum of 10.
+
+            .. versionadded:: 2.0
         suppress: :class:`bool`
             Whether to suppress embeds for the message. This removes
             all the embeds if set to ``True``. If set to ``False``
