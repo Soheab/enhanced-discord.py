@@ -272,7 +272,6 @@ class Member(discord.abc.Messageable, _UserTag):
         "_state",
         "_avatar",
         "_guild_banner",
-        "user_banner",
     )
 
     if TYPE_CHECKING:
@@ -280,6 +279,7 @@ class Member(discord.abc.Messageable, _UserTag):
         id: int
         discriminator: str
         bot: bool
+        banner: Optional[Asset]
         system: bool
         created_at: datetime.datetime
         default_avatar: Asset
@@ -304,7 +304,6 @@ class Member(discord.abc.Messageable, _UserTag):
         self.pending: bool = data.get("pending", False)
         self._avatar: Optional[str] = data.get("avatar")
         self._guild_banner: Optional[str] = data.get("banner")
-        self.user_banner: Optional[Asset] = self._user.banner
 
     def __str__(self) -> str:
         return str(self._user)
@@ -554,7 +553,7 @@ class Member(discord.abc.Messageable, _UserTag):
         .. note::
             This information is only available via :meth:`Client.fetch_user`.
         """
-        return self.guild_banner or self.user_banner
+        return self.guild_banner or self._user.banner
 
     @property
     def guild_banner(self) -> Optional[Asset]:
