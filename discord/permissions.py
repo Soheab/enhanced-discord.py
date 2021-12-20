@@ -566,7 +566,6 @@ class Permissions(BaseFlags):
         .. versionadded:: 2.0
         """
         return 1 << 39
-      
 
     @flag_value
     def moderate_members(self) -> int:
