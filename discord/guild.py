@@ -292,7 +292,6 @@ class Guild(Hashable):
         "_threads",
         "approximate_member_count",
         "approximate_presence_count",
-        "timed_out_members",
     )
 
     _PREMIUM_GUILD_LIMITS: ClassVar[Dict[Optional[int], _GuildLimit]] = {
@@ -772,7 +771,7 @@ class Guild(Hashable):
 
         This works by checking if :attr:`Member.timeout_until` is not ``None``.
         """
-        return [m for m in self.members if not m.timeout_until]
+        return [m for m in self.members if m.timeout_until is not None]
 
     @property
     def bots(self) -> List[Member]:

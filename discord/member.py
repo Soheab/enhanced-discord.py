@@ -396,6 +396,7 @@ class Member(discord.abc.Messageable, _UserTag):
         self.premium_since = utils.parse_time(data.get("premium_since"))
         self._roles = utils.SnowflakeList(map(int, data["roles"]))
         self._avatar = data.get("avatar")
+        self.timeout_until = utils.parse_time(data.get("communication_disabled_until"))
 
     def _presence_update(self, data: PartialPresenceUpdate, user: UserPayload) -> Optional[Tuple[User, User]]:
         self.activities = tuple(map(create_activity, data["activities"]))
@@ -711,13 +712,14 @@ class Member(discord.abc.Messageable, _UserTag):
         voice_channel: Optional[:class:`VoiceChannel`]
             The voice channel to move the member to.
             Pass ``None`` to kick them from voice.
-        reason: Optional[:class:`str`]
-            The reason for editing this member. Shows up on the audit log.
         timeout_until: Optional[:class:`datetime.datetime`]
             The date and time as an :class:`datetime.datetime` instance to timeout the member for.
             pass ``None`` to remove the timeout.
 
             .. versionadded:: 2.0
+        reason: Optional[:class:`str`]
+            The reason for editing this member. Shows up on the audit log.
+
 
         Raises
         -------
