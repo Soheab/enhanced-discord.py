@@ -563,6 +563,7 @@ class Permissions(BaseFlags):
     @flag_value
     def start_embedded_activities(self) -> int:
         """:class:`bool`: Returns ``True`` if a user can start embedded activities.
+
         .. versionadded:: 2.0
         """
         return 1 << 39
@@ -570,6 +571,8 @@ class Permissions(BaseFlags):
     @flag_value
     def moderate_members(self) -> int:
         """:class:`bool`: Returns ``True`` if a user can timeout members
+
+        This can be referred to as "Time out Members" in the official Discord client
 
         .. versionadded:: 2.0
         """

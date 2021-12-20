@@ -759,19 +759,19 @@ class Guild(Hashable):
         return list(self._members.values())
 
     @property
-    def humans(self) -> List[Member]:
-        """List[:class:`Member`]: A list of human members that belong to this guild.
-
-        .. versionadded:: 2.0"""
-        return [member for member in self.members if not member.bot]
-
-    @property
     def timed_out_members(self) -> List[Member]:
         """List[:class:`Member`]: Returns a list of members that are timed out.
 
         This works by checking if :attr:`Member.timeout_until` is not ``None``.
         """
-        return [m for m in self.members if m.timeout_until is not None]
+        return [member for member in self.members if member.timeout_until is not None]
+
+    @property
+    def humans(self) -> List[Member]:
+        """List[:class:`Member`]: A list of human members that belong to this guild.
+
+        .. versionadded:: 2.0"""
+        return [member for member in self.members if not member.bot]
 
     @property
     def bots(self) -> List[Member]:
