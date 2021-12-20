@@ -174,9 +174,25 @@ class Attachment(Hashable):
         will automatically be removed after a set period of time.
 
         .. versionadded:: 2.0
+    description: Optional[:class:`str`]
+        The attachment's description (alt text).
+
+        .. versionadded:: 2.0
     """
 
-    __slots__ = ("id", "size", "height", "width", "filename", "url", "proxy_url", "ephemeral", "_http", "content_type")
+    __slots__ = (
+        "id",
+        "size",
+        "height",
+        "width",
+        "filename",
+        "url",
+        "proxy_url",
+        "content_type",
+        "ephemeral",
+        "description",
+        "_http",
+    )
 
     def __init__(self, *, data: AttachmentPayload, state: ConnectionState):
         self.id: int = int(data["id"])
@@ -189,13 +205,14 @@ class Attachment(Hashable):
         self._http = state.http
         self.content_type: Optional[str] = data.get("content_type")
         self.ephemeral: Optional[bool] = data.get("ephemeral")
+        self.description: Optional[str] = data.get("description")
 
     def is_spoiler(self) -> bool:
         """:class:`bool`: Whether this attachment contains a spoiler."""
         return self.filename.startswith("SPOILER_")
 
     def __repr__(self) -> str:
-        return f"<Attachment id={self.id} filename={self.filename!r} url={self.url!r}>"
+        return f"<Attachment id={self.id} description={self.description} filename={self.filename!r} url={self.url!r}>"
 
     def __str__(self) -> str:
         return self.url or ""
@@ -285,7 +302,9 @@ class Attachment(Hashable):
         data = await self._http.get_from_cdn(url)
         return data
 
-    async def to_file(self, *, use_cached: bool = False, spoiler: bool = False) -> File:
+    async def to_file(
+        self, *, use_cached: bool = False, spoiler: bool = False, descrption: Optional[str] = None
+    ) -> File:
         """|coro|
 
         Converts the attachment into a :class:`File` suitable for sending via
@@ -309,6 +328,11 @@ class Attachment(Hashable):
 
             .. versionadded:: 1.4
 
+        description: Optional[:class:`str`]
+            The description (alt text) for the file.
+
+            .. versionadded:: 2.0
+
         Raises
         ------
         HTTPException
@@ -325,7 +349,7 @@ class Attachment(Hashable):
         """
 
         data = await self.read(use_cached=use_cached)
-        return File(io.BytesIO(data), filename=self.filename, spoiler=spoiler)
+        return File(io.BytesIO(data), filename=self.filename, spoiler=spoiler, description=descrption)
 
     def to_dict(self) -> AttachmentPayload:
         result: AttachmentPayload = {

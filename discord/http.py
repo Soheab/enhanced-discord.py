@@ -273,7 +273,7 @@ class HTTPClient:
                         f.reset(seek=tries)
 
                 if form:
-                    form_data = aiohttp.FormData()
+                    form_data = aiohttp.FormData(quote_fields=False)
                     for params in form:
                         form_data.add_field(**params)
 
@@ -492,8 +492,6 @@ class HTTPClient:
 
         if allowed_mentions:
             payload["allowed_mentions"] = allowed_mentions
-        if attachments is not None:
-            payload["attachments"] = attachments
         if content:
             payload["content"] = content
         if components:
@@ -511,8 +509,16 @@ class HTTPClient:
         if tts is not None:
             payload["tts"] = tts
 
-        form.append({"name": "payload_json", "value": utils._to_json(payload)})
+        if attachments is None:
+            attachments: List[Dict[str, Union[int, str]]] = []
+
         for index, file in enumerate(files):
+            to_append: Dict[str, Union[int, str]] = {"id": index, "filename": file.filename}  # type: ignore | filename can't be None.
+            if file.description is not None:
+                to_append["description"] = file.description
+
+            attachments.append(to_append)  # type: ignore | attachments isn't None.
+
             form.append(
                 {
                     "name": f"files[{index}]",
@@ -522,6 +528,8 @@ class HTTPClient:
                 }
             )
 
+        payload["attachments"] = attachments
+        form.append({"name": "payload_json", "value": utils._to_json(payload)})
         return self.request(route, form=form, files=files)
 
     def send_files(self, channel_id: Snowflake, *, files: Sequence[File], **fields: Any) -> Response[message.Message]:
