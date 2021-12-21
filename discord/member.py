@@ -628,7 +628,7 @@ class Member(discord.abc.Messageable, _UserTag):
         return self.guild._voice_state_for(self._user.id)
 
     @property
-    def timed_out(self) -> bool:
+    def is_on_timeout(self) -> bool:
         """:class:`bool`: Returns whether the member is timed out.
 
         .. versionadded:: 2.0
