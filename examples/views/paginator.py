@@ -27,7 +27,6 @@ class PaginatorButton(discord.ui.Button["Paginator"]):
             await self.view.stop()
             return
 
-
         # Set the current_page attribute to the correct page
 
         if self.custom_id == "right_button":
@@ -64,7 +63,9 @@ class PaginatorButton(discord.ui.Button["Paginator"]):
 
         # get the page content to send
         page_kwargs, _ = await self.view.get_page_kwargs(self.view.current_page)
-        assert interaction.message is not None and self.view.message is not None  # so that the type checker doesn't complain
+        assert (
+            interaction.message is not None and self.view.message is not None
+        )  # so that the type checker doesn't complain
 
         # edit the message
         try:
@@ -108,7 +109,6 @@ class Paginator(discord.ui.View):
             "last": PaginatorButton(label="Last", style=discord.ButtonStyle.primary, position=5),
         }
 
-
         # assign the basic attributes
 
         self.ctx: Optional[commands.Context] = ctx
@@ -137,7 +137,7 @@ class Paginator(discord.ui.View):
         VALID_KEYS = ["first", "left", "right", "last", "stop", "page"]
         if all(b in VALID_KEYS for b in self.buttons.keys()) is False:
             raise ValueError(f"Buttons keys must be in: `{', '.join(VALID_KEYS)}`")
-        
+
         # this is to check if the dictonary has the right values
         if all(isinstance(b, PaginatorButton) or b is None for b in self.buttons.values()) is False:
             raise ValueError("Buttons values must be PaginatorButton instances or None.")
@@ -180,7 +180,7 @@ class Paginator(discord.ui.View):
             # this checks if there are less than or 2 pages, don't add the first and last buttons
             if button.custom_id in ("first_button", "last_button") and self.max_pages <= 2:
                 continue
-        
+
             # this checks if the current_page is 0 or less, disable the first and left button
             if button.custom_id in ("first_button", "left_button") and self.current_page <= 0:
                 button.disabled = True
@@ -194,7 +194,7 @@ class Paginator(discord.ui.View):
 
         # call the function to set the buttons to the desired positions
         self._set_button_positions()
-    
+
     # this is kinda hacky, but it works
     def _set_button_positions(self) -> None:
         """Moves the buttons to the desired position"""
@@ -211,7 +211,7 @@ class Paginator(discord.ui.View):
                 # and .pop takes the index of the item to remove and remove and returns it
                 # and .index takes the item and returns the index of the item
                 self.children.insert(button.position, self.children.pop(self.children.index(button)))
-    
+
     # this is for users to override to easily format their page
     async def format_page(self, page: Union[discord.Embed, str]) -> Union[discord.Embed, str]:
         return page
@@ -302,9 +302,11 @@ class Paginator(discord.ui.View):
 
         else:
             return
-    
+
     # this is a special method that allows the paginator to be send in response to an interaction
-    async def send_as_interaction(self, interaction: discord.Interaction, ephemeral: bool = False, *args, **kwargs) -> None:
+    async def send_as_interaction(
+        self, interaction: discord.Interaction, ephemeral: bool = False, *args, **kwargs
+    ) -> None:
         page_kwargs, send_kwargs = await self.get_page_kwargs(self.current_page, kwargs)
         if not interaction.response.is_done():
             send = interaction.response.send_message
@@ -351,18 +353,12 @@ class Paginator(discord.ui.View):
         assert self.message is not None  # so that the type checker doesn't complain
         return self.message
 
-    @property
-    def view(self):
-        return self
-
 
 class Bot(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix=commands.when_mentioned_or("$"), intents=discord.Intents(guilds=True, messages=True)
         )
-        self.load_extension("jishaku")
-        self.lol = Paginator
 
     async def on_ready(self):
         print(f"Logged in as {self.user} (ID: {self.user.id})")
@@ -372,22 +368,24 @@ class Bot(commands.Bot):
 bot = Bot()
 
 
-class Yes(Paginator):
+class CustomPage(Paginator):
     def format_page(self, page):
-        page.title = "yes"
+        # add "Nice Example" as title to every page
+        page.title = "Nice Example"
+        # return the edited page for the paginator to send
         return page
 
 
 @bot.command()
 async def yes(ctx):
-    """Starts a menu to paginate through 3 different embeds."""
+    """Starts a menu to paginate through 3 different embeds with a custom page class that formats the page"""
     # Create the pages
     page1 = discord.Embed(description="This is page 1")
     page2 = discord.Embed(description="This is page 2")
     page3 = discord.Embed(description="This is page 3")
 
     # Creates a Paginator object
-    vw = Yes([page1, page2, page3], ctx=ctx)
+    vw = CustomPage([page1, page2, page3], ctx=ctx)
 
     # Sends the paginator to the current channel
     await vw.send(ctx.channel)
@@ -433,6 +431,7 @@ async def paginate_reply(ctx):
     # Replies to the passed message with the paginator
     await vw.send(ctx.message.reference.cached_message)
 
+
 @bot.command()
 async def paginate_custom_buttons(ctx):
     """Starts a menu to paginate through 3 different embeds."""
@@ -444,7 +443,7 @@ async def paginate_custom_buttons(ctx):
     MY_BUTTONS = {
         "first": PaginatorButton(emoji="⏮️", style=discord.ButtonStyle.primary, position=0),
         "left": PaginatorButton(emoji="⬅️", style=discord.ButtonStyle.primary, position=1),
-        "stop": None, #PaginatorButton(label="⏹️", style=discord.ButtonStyle.danger, position=4),
+        "stop": None,  # PaginatorButton(label="⏹️", style=discord.ButtonStyle.danger, position=4),
         "right": PaginatorButton(emoji="➡️", style=discord.ButtonStyle.primary, position=3),
         "last": PaginatorButton(emoji="⏭️", style=discord.ButtonStyle.primary, position=4),
     }
@@ -465,6 +464,7 @@ class PaginateButton(discord.ui.View):
         # Creates a Paginator object
         vw = Paginator(self.pages, author_id=interaction.user.id, disable_on_stop=True)  # type: ignore
         await vw.send_as_interaction(interaction, ephemeral=True)
+
 
 @bot.command()
 async def paginate_button(ctx):
