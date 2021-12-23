@@ -132,6 +132,10 @@ class Paginator(discord.ui.View):
 
     # this is where we add the buttons to the view, called in the __init__
     def _add_buttons(self, default_buttons: Dict[str, Union[PaginatorButton, None]]) -> None:
+        # no need to run a view and add buttons if there are no pages.
+        if self.max_pages <= 1:
+            super().stop()
+            return
 
         # this is to check if the dictonary has the right keys
         VALID_KEYS = ["first", "left", "right", "last", "stop", "page"]
@@ -141,11 +145,6 @@ class Paginator(discord.ui.View):
         # this is to check if the dictonary has the right values
         if all(isinstance(b, PaginatorButton) or b is None for b in self.buttons.values()) is False:
             raise ValueError("Buttons values must be PaginatorButton instances or None.")
-
-        # no need to run a view and add buttons if there are no pages.
-        if self.max_pages <= 1:
-            super().stop()
-            return
 
         # this is for typing purposes
         button: Union[PaginatorButton, None]
