@@ -477,4 +477,4 @@ async def paginate_button(ctx):
     await ctx.send("Paginator with button example", view=PaginateButton([page1, page2, page3]))
 
 
-bot.run("NTczNTMxNjk0ODIxNTM5ODUw.XMsNAw.Dom133tP8Mj_7AKxPK5HcAmz1Yo")
+bot.run("TOKEN")
