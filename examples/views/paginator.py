@@ -205,10 +205,10 @@ class Paginator(discord.ui.View):
         for button in self.children:  # type: ignore
             # check is button.paginator is not None
             if button.position is not None:
-                # this is the hacky part, it sets the position of the button
+                # this is the hacky part, it sets the position of the button by modifying the children list
                 # .insert takes index and the item to add at that index
-                # and .pop takes the index of the item to remove and remove and returns it
-                # and .index takes the item and returns the index of the item
+                # .pop takes the index of the item to remove and returns it
+                # .index takes the item and returns the index of it
                 self.children.insert(button.position, self.children.pop(self.children.index(button)))
 
     # this is for users to override to easily format their page
@@ -380,7 +380,7 @@ async def yes(ctx):
     page2 = discord.Embed(description="This is page 2")
     page3 = discord.Embed(description="This is page 3")
 
-    # Creates a Paginator object
+    # Creates an instance of our custom page class
     vw = CustomPage([page1, page2, page3], ctx=ctx)
 
     # Sends the paginator to the current channel
@@ -457,9 +457,10 @@ class PaginateButton(discord.ui.View):
     @discord.ui.button(label="Click me for a paginator!", style=discord.ButtonStyle.primary)
     async def my_button(self, button: discord.ui.Button, interaction: discord.Interaction):
 
-        # Creates a Paginator object
-        vw = Paginator(self.pages, author_id=interaction.user.id, disable_on_stop=True)  # type: ignore
-        await vw.send_as_interaction(interaction, ephemeral=True)
+        # Creates a Paginator object with the list of embeds as the pages and the author id
+        pag = Paginator(self.pages, author_id=interaction.user.id, disable_on_stop=True)  # type: ignore
+        # use the send_as_interaction method to send the paginator as an interaction to the user (ephemeral)
+        await pag.send_as_interaction(interaction, ephemeral=True)
 
 
 @bot.command()
@@ -470,6 +471,7 @@ async def paginate_button(ctx):
     page2 = discord.Embed(description="This is page 2")
     page3 = discord.Embed(description="This is page 3")
 
+    # send the view
     await ctx.send("Paginator with button example", view=PaginateButton([page1, page2, page3]))
 
 
