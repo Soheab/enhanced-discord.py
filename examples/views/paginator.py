@@ -306,7 +306,7 @@ class Paginator(discord.ui.View):
     # this is a special method that allows the paginator to be send in response to an interaction
     async def send_as_interaction(
         self, interaction: discord.Interaction, ephemeral: bool = False, *args, **kwargs
-    ) -> None:
+    ) -> Optional[Union[discord.Message, discord.WebhookMessage]]:
         page_kwargs, send_kwargs = await self.get_page_kwargs(self.current_page, kwargs)
         if not interaction.response.is_done():
             send = interaction.response.send_message
@@ -315,6 +315,7 @@ class Paginator(discord.ui.View):
             if not interaction.response.is_done():
                 await interaction.response.defer(ephemeral=ephemeral)
 
+            send_kwargs["wait"] = True
             send = interaction.followup.send
 
         ret = await send(*args, ephemeral=ephemeral, **page_kwargs, **send_kwargs)  # type: ignore
@@ -327,7 +328,7 @@ class Paginator(discord.ui.View):
         else:
             self.message = ret
 
-        print("message", self.message)
+        return self.message
 
     # main way to send the menu
     async def send(
@@ -336,10 +337,6 @@ class Paginator(discord.ui.View):
 
         # get the page content
         page_kwargs, send_kwargs = await self.get_page_kwargs(self.current_page, kwargs)
-
-        # raise if send_to is None
-        if not send_to:
-            raise ValueError("send_to can not be None")
 
         # check if send_to is a message or channel. If it is a message we reply to it else we send it to the channel
         if isinstance(send_to, discord.Message):
@@ -361,7 +358,7 @@ class Bot(commands.Bot):
         )
 
     async def on_ready(self):
-        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        print(f"Logged in as {self.user} (ID: {self.user.id})")  # type: ignore
         print("------")
 
 
