@@ -1,9 +1,6 @@
-from __future__ import annotations
 from typing import Literal, Optional, Dict, Any, List, Union, Tuple
-
-
-import discord
 from discord.ext import commands
+import discord
 
 # Defines a custom button that contains the logic of the paginator.
 # The ['Paginator'] bit is for type hinting purposes to tell your IDE or linter
