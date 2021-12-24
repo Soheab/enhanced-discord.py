@@ -48,22 +48,31 @@ class PaginatorButton(discord.ui.Button["Paginator"]):
         # Updates the page_string attribute in the View (Paginator class) to the correct page, this is used to display the current page / max pages.
         self.view.page_string: str = f"Page {self.view.current_page + 1}/{self.view.max_pages}"  # type: ignore
         # Sets the "page" button to be the current page.
-        self.view.PAGE_BUTTON.label = self.view.page_string
+        if self.view.PAGE_BUTTON is not None:
+            self.view.PAGE_BUTTON.label = self.view.page_string
 
         # Here we disable the buttons that are not needed on the current page and enable the ones that are.
         if self.view.current_page == 0:
-            self.view.FIRST_BUTTON.disabled = True
-            self.view.LEFT_BUTTON.disabled = True
+            if self.view.FIRST_BUTTON is not None:
+                self.view.FIRST_BUTTON.disabled = True
+            if self.view.LEFT_BUTTON is not None:
+                self.view.LEFT_BUTTON.disabled = True
         else:
-            self.view.FIRST_BUTTON.disabled = False
-            self.view.LEFT_BUTTON.disabled = False
+            if self.view.FIRST_BUTTON is not None:
+                self.view.FIRST_BUTTON.disabled = False
+            if self.view.LEFT_BUTTON is not None:
+                self.view.LEFT_BUTTON.disabled = False
 
         if self.view.current_page >= self.view.max_pages - 1:
-            self.view.LAST_BUTTON.disabled = True
-            self.view.RIGHT_BUTTON.disabled = True
+            if self.view.LAST_BUTTON is not None:
+                self.view.LAST_BUTTON.disabled = True
+            if self.view.RIGHT_BUTTON is not None:
+                self.view.RIGHT_BUTTON.disabled = True
         else:
-            self.view.LAST_BUTTON.disabled = False
-            self.view.RIGHT_BUTTON.disabled = False
+            if self.view.LAST_BUTTON is not None:
+                self.view.LAST_BUTTON.disabled = False
+            if self.view.RIGHT_BUTTON is not None:
+                self.view.RIGHT_BUTTON.disabled = False
 
         # Get the contents of the current page.
         page_kwargs, _ = await self.view.get_page_kwargs(self.view.current_page)
@@ -80,12 +89,12 @@ class Paginator(discord.ui.View):
 
     # This tells the IDE or linter that the attributes do exist and are of type 'PaginatorButton'.
     # This is not required
-    FIRST_BUTTON: PaginatorButton
-    LAST_BUTTON: PaginatorButton
-    LEFT_BUTTON: PaginatorButton
-    RIGHT_BUTTON: PaginatorButton
-    STOP_BUTTON: PaginatorButton
-    PAGE_BUTTON: PaginatorButton
+    FIRST_BUTTON: Union[PaginatorButton, None]
+    LAST_BUTTON: Union[PaginatorButton, None]
+    LEFT_BUTTON: Union[PaginatorButton, None]
+    RIGHT_BUTTON: Union[PaginatorButton, None]
+    STOP_BUTTON: Union[PaginatorButton, None]
+    PAGE_BUTTON: Union[PaginatorButton, None]
 
     def __init__(
         self,
@@ -159,18 +168,18 @@ class Paginator(discord.ui.View):
                 if name == custom_name:
                     button = custom_button
 
+            # Setting the buttons as attributes for easy access.
+            # This is not required
+            # An example of the usage is self.LEFT_BUTTON
+            # self.LEFT_BUTTON.label = "Left"
+            setattr(self, f"{name}_button".upper(), button)
+
             # Don't add the button if it is None.
             if button is None:
                 continue
 
             # Sets the custom_id of each button, this is not required but we use it to access the buttons more easily.
             button.custom_id = f"{name}_button"
-
-            # Setting the buttons as attributes for easy access.
-            # This is not required
-            # An example of the usage is self.LEFT_BUTTON
-            # self.LEFT_BUTTON.label = "Left"
-            setattr(self, button.custom_id.upper(), button)
 
             # Set the page button to correct label.
             if button.custom_id == "page_button":
