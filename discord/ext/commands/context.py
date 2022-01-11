@@ -484,6 +484,8 @@ class Context(discord.abc.Messageable, Generic[BotT]):
             if not self.interaction.response.is_done():
                 await self.interaction.response.defer(ephemeral=ephemeral)
 
+            # Webhook.send uses MISSING instead of None
+            kwargs = {k: v if v not in (None, MISSING) else MISSING for k, v in kwargs.items()}
             send = self.interaction.followup.send
 
         return await send(content, ephemeral=ephemeral, **kwargs)  # type: ignore
