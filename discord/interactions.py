@@ -255,6 +255,7 @@ class Interaction:
     async def edit_original_message(
         self,
         *,
+        allowed_mentions: Optional[AllowedMentions] = None,
         attachments: Optional[List[Attachment]] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
@@ -262,7 +263,6 @@ class Interaction:
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = None,
     ) -> InteractionMessage:
         """|coro|
 
@@ -291,9 +291,6 @@ class Interaction:
         files: List[:class:`File`]
             A list of files to send with the content. This cannot be mixed with the
             ``file`` parameter.
-        allowed_mentions: :class:`AllowedMentions`
-            Controls the mentions being processed in this message.
-            See :meth:`.abc.Messageable.send` for more information.
         view: Optional[:class:`~discord.ui.View`]
             The updated view to update this message with. If ``None`` is passed then
             the view is removed.
