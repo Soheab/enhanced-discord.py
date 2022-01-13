@@ -357,7 +357,7 @@ class AsyncWebhookAdapter:
         multipart: Optional[List[Dict[str, Any]]] = None,
         files: Optional[List[File]] = None,
     ) -> Response[None]:
-        payload: Dict[str, Any] = {
+        payload: Optional[Dict[str, Any]] = {
             "type": type,
         }
 
@@ -365,8 +365,8 @@ class AsyncWebhookAdapter:
             payload["data"] = data
 
         # type is send via multipart
-        if data is None:
-            payload = None  # type: ignore
+        if multipart is not None:
+            payload = None
 
         route = Route(
             "POST",

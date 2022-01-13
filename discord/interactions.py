@@ -744,7 +744,7 @@ class InteractionMessage(Message):
     async def edit(
         self,
         allowed_mentions: Optional[AllowedMentions] = None,
-        attachents: List[Attachment] = MISSING,
+        attachments: List[Attachment] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
@@ -800,7 +800,7 @@ class InteractionMessage(Message):
             The newly edited message.
         """
         return await self._state._interaction.edit_original_message(
-            attachents=attachents,
+            attachments=attachments,
             allowed_mentions=allowed_mentions,
             content=content,
             embeds=embeds,
