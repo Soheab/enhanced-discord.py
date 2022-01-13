@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from ..channel import TextChannel
     from ..abc import Snowflake
     from ..ui.view import View
+    from ..message import Attachment
     import datetime
 
 MISSING = utils.MISSING
@@ -141,7 +142,7 @@ class AsyncWebhookAdapter:
                     file.reset(seek=attempt)
 
                 if multipart:
-                    form_data = aiohttp.FormData()
+                    form_data = aiohttp.FormData(quote_fields=False)
                     for p in multipart:
                         form_data.add_field(**p)
                     to_send = form_data
@@ -353,6 +354,8 @@ class AsyncWebhookAdapter:
         session: aiohttp.ClientSession,
         type: int,
         data: Optional[Dict[str, Any]] = None,
+        multipart: Optional[List[Dict[str, Any]]] = None,
+        files: Optional[List[File]] = None,
     ) -> Response[None]:
         payload: Dict[str, Any] = {
             "type": type,
@@ -361,14 +364,17 @@ class AsyncWebhookAdapter:
         if data is not None:
             payload["data"] = data
 
+        # type is send via multipart
+        if data is None:
+            payload = None  # type: ignore
+
         route = Route(
             "POST",
             "/interactions/{webhook_id}/{webhook_token}/callback",
             webhook_id=interaction_id,
             webhook_token=token,
         )
-
-        return self.request(route, session=session, payload=payload)
+        return self.request(route, session=session, payload=payload, multipart=multipart, files=files)
 
     def get_original_interaction_response(
         self,
@@ -423,11 +429,13 @@ class ExecuteWebhookParameters(NamedTuple):
     payload: Optional[Dict[str, Any]]
     multipart: Optional[List[Dict[str, Any]]]
     files: Optional[List[File]]
+    interaction_type: Optional[int]
 
 
 def handle_message_parameters(
     content: Optional[str] = MISSING,
     *,
+    attachments: Optional[List[Attachment]] = MISSING,
     username: str = MISSING,
     avatar_url: Any = MISSING,
     tts: bool = False,
@@ -439,6 +447,7 @@ def handle_message_parameters(
     view: Optional[View] = MISSING,
     allowed_mentions: Optional[AllowedMentions] = MISSING,
     previous_allowed_mentions: Optional[AllowedMentions] = None,
+    interaction_type: int = MISSING,
 ) -> ExecuteWebhookParameters:
     if files is not MISSING and file is not MISSING:
         raise TypeError("Cannot mix file and files keyword arguments.")
@@ -446,6 +455,10 @@ def handle_message_parameters(
         raise TypeError("Cannot mix embed and embeds keyword arguments.")
 
     payload = {}
+    # for interaction responses
+    if interaction_type is not MISSING:
+        payload["type"] = interaction_type
+
     if embeds is not MISSING:
         if len(embeds) > 10:
             raise InvalidArgument("embeds has a maximum of 10 elements.")
@@ -485,35 +498,41 @@ def handle_message_parameters(
     elif previous_allowed_mentions is not None:
         payload["allowed_mentions"] = previous_allowed_mentions.to_dict()
 
+    if attachments is not MISSING:
+        if attachments is not None:
+            payload["attachments"] = [a.to_dict() for a in attachments]
+        else:
+            payload["attachments"] = []
+
     multipart = []
     if file is not MISSING:
         files = [file]
 
     if files:
-        multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
-        payload = None
-        if len(files) == 1:
-            file = files[0]
+        attachements = payload.get("attachments", [])
+
+        for index, file in enumerate(files):
+            to_append: Dict[str, Union[int, str]] = {"id": index, "filename": file.filename}  # type: ignore | filename can't be None.
+            if file.description is not None:
+                to_append["description"] = file.description
+
+            attachements.append(to_append)  # type: ignore | attachments isn't None.
             multipart.append(
                 {
-                    "name": "file",
+                    "name": f"files[{index}]",
                     "value": file.fp,
                     "filename": file.filename,
                     "content_type": "application/octet-stream",
                 }
             )
-        else:
-            for index, file in enumerate(files):
-                multipart.append(
-                    {
-                        "name": f"file{index}",
-                        "value": file.fp,
-                        "filename": file.filename,
-                        "content_type": "application/octet-stream",
-                    }
-                )
 
-    return ExecuteWebhookParameters(payload=payload, multipart=multipart, files=files)
+        payload["attachments"] = attachements
+        multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
+        payload = None
+
+    return ExecuteWebhookParameters(
+        payload=payload, multipart=multipart, files=files, interaction_type=interaction_type
+    )
 
 
 async_context: ContextVar[AsyncWebhookAdapter] = ContextVar("async_webhook_context", default=AsyncWebhookAdapter())
