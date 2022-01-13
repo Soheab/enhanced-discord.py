@@ -279,6 +279,11 @@ class Interaction:
         allowed_mentions: :class:`AllowedMentions`
             Controls the mentions being processed in this message.
             See :meth:`.abc.Messageable.send` for more information.
+        attachments: List[:class:`Attachment`]
+            A list of attachments to keep in the message. If ``[]`` is passed
+            then all attachments are removed.
+
+            .. versionadded:: 2.0
         content: Optional[:class:`str`]
             The content to edit the message with or ``None`` to clear it.
         embeds: List[:class:`Embed`]
@@ -478,6 +483,8 @@ class InteractionResponse:
         allowed_mentions: :class:`AllowedMentions`
             Controls the mentions being processed in this message.
             See :meth:`.abc.Messageable.send` for more information.
+
+            .. versionadded:: 2.0
         content: Optional[:class:`str`]
             The content of the message to send.
         embeds: List[:class:`Embed`]
@@ -736,13 +743,14 @@ class InteractionMessage(Message):
 
     async def edit(
         self,
+        allowed_mentions: Optional[AllowedMentions] = None,
+        attachents: List[Attachment] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = None,
     ) -> InteractionMessage:
         """|coro|
 
@@ -750,6 +758,14 @@ class InteractionMessage(Message):
 
         Parameters
         ------------
+        allowed_mentions: :class:`AllowedMentions`
+            Controls the mentions being processed in this message.
+            See :meth:`.abc.Messageable.send` for more information.
+        attachments: List[:class:`Attachment`]
+            A list of attachments to keep in the message. If ``[]`` is passed
+            then all attachments are removed.
+
+            .. versionadded:: 2.0
         content: Optional[:class:`str`]
             The content to edit the message with or ``None`` to clear it.
         embeds: List[:class:`Embed`]
@@ -762,9 +778,7 @@ class InteractionMessage(Message):
         files: List[:class:`File`]
             A list of files to send with the content. This cannot be mixed with the
             ``file`` parameter.
-        allowed_mentions: :class:`AllowedMentions`
-            Controls the mentions being processed in this message.
-            See :meth:`.abc.Messageable.send` for more information.
+
         view: Optional[:class:`~discord.ui.View`]
             The updated view to update this message with. If ``None`` is passed then
             the view is removed.
@@ -786,13 +800,14 @@ class InteractionMessage(Message):
             The newly edited message.
         """
         return await self._state._interaction.edit_original_message(
+            attachents=attachents,
+            allowed_mentions=allowed_mentions,
             content=content,
             embeds=embeds,
             embed=embed,
             file=file,
             files=files,
             view=view,
-            allowed_mentions=allowed_mentions,
         )
 
     async def delete(self, *, delay: Optional[float] = None) -> None:
