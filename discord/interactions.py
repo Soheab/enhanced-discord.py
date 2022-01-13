@@ -635,6 +635,9 @@ class InteractionResponse:
         if parent.type is not InteractionType.component:
             return
 
+        if view is not MISSING:
+            state.prevent_view_updates_for(message_id)
+
         params = handle_message_parameters(
             attachments=attachments,
             content=content,
@@ -654,10 +657,9 @@ class InteractionResponse:
             session=parent._session,
             type=params.interaction_type,
             data=params.payload,
+            multipart=params.multipart,
+            files=params.files,
         )
-
-        if view is not MISSING:
-            state.prevent_view_updates_for(message_id)
 
         if view and not view.is_finished():
             state.store_view(view, message_id)
