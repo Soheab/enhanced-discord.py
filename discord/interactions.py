@@ -260,7 +260,6 @@ class Interaction:
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -292,10 +291,6 @@ class Interaction:
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
-            If provided, the number of seconds to wait in the background
-            before deleting the message we just edited. If the deletion fails,
-            then it is silently ignored.
         file: :class:`File`
             The file to upload. This cannot be mixed with ``files`` parameter.
         files: List[:class:`File`]
@@ -349,25 +344,15 @@ class Interaction:
         message = InteractionMessage(state=state, channel=self.channel, data=data)  # type: ignore
         if view and not view.is_finished():
             self._state.store_view(view, message.id)
-
-        if delete_after is not MISSING and message.flags.ephemeral is False:
-            await message.delete(delay=delete_after)
-
         return message
 
-    async def delete_original_message(self, delay: float = MISSING) -> None:
+    async def delete_original_message(self) -> None:
         """|coro|
 
         Deletes the original interaction response message.
 
         This is a lower level interface to :meth:`InteractionMessage.delete` in case
         you do not want to fetch the message and save an HTTP request.
-
-        Parameters
-        -----------
-        delay: Optional[:class:`float`]
-            If provided, the number of seconds to wait before deleting the message.
-            The waiting is done in the background and deletion failures are ignored.
 
         Raises
         -------
@@ -377,24 +362,11 @@ class Interaction:
             Deleted a message that is not yours.
         """
         adapter = async_context.get()
-        to_call = adapter.delete_original_interaction_response(
+        await adapter.delete_original_interaction_response(
             self.application_id,
             self.token,
             session=self._session,
         )
-
-        if delay is not MISSING:
-
-            async def inner_call(delay: float = delay):
-                await asyncio.sleep(delay)
-                try:
-                    await to_call
-                except HTTPException:
-                    pass
-
-            asyncio.create_task(inner_call())
-        else:
-            await to_call
 
 
 class InteractionResponse:
@@ -495,12 +467,12 @@ class InteractionResponse:
         allowed_mentions: AllowedMentions = MISSING,
         embed: Embed = MISSING,
         embeds: List[Embed] = MISSING,
-        delete_after: float = MISSING,
         view: View = MISSING,
         tts: bool = False,
         ephemeral: bool = False,
         file: File = MISSING,
         files: List[File] = MISSING,
+        delete_after: float = MISSING,
     ) -> None:
         """|coro|
 
@@ -521,10 +493,6 @@ class InteractionResponse:
         embed: :class:`Embed`
             The rich embed for the content to send. This cannot be mixed with
             ``embeds`` parameter.
-        delete_after: :class:`float`
-            If provided, the number of seconds to wait in the background
-            before deleting the message we just sent. If the deletion fails,
-            then it is silently ignored.
         file: :class:`File`
             The file to upload. This cannot be mixed with ``files`` parameter.
 
@@ -590,8 +558,16 @@ class InteractionResponse:
 
         self.responded_at = utils.utcnow()
 
-        if delete_after is not MISSING and ephemeral is False:
-            await parent.delete_original_message(delay=delete_after)
+        if delete_after is not MISSING:
+
+            async def delete(delay: float):
+                await asyncio.sleep(delay)
+                try:
+                    await parent.delete_original_message()
+                except HTTPException:
+                    pass
+
+            asyncio.create_task(delete(delete_after))
 
     async def edit_message(
         self,
@@ -601,7 +577,6 @@ class InteractionResponse:
         content: Optional[Any] = MISSING,
         embed: Optional[Embed] = MISSING,
         embeds: List[Embed] = MISSING,
-        delete_after: float = MISSING,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -628,10 +603,6 @@ class InteractionResponse:
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
-            If provided, the number of seconds to wait in the background
-            before deleting the message we just edited. If the deletion fails,
-            then it is silently ignored.
         file: :class:`~discord.File`
             The file to upload.
 
@@ -664,10 +635,9 @@ class InteractionResponse:
         if parent.type is not InteractionType.component:
             return
 
-        if view is not MISSING and message_id is not None:
+        if view is not MISSING:
             state.prevent_view_updates_for(message_id)
 
-        previous_mentions: Optional[AllowedMentions] = state.allowed_mentions
         params = handle_message_parameters(
             attachments=attachments,
             content=content,
@@ -677,7 +647,6 @@ class InteractionResponse:
             embeds=embeds,
             view=view,
             allowed_mentions=allowed_mentions,
-            previous_allowed_mentions=previous_mentions,
             interaction_type=InteractionResponseType.message_update.value,
         )
 
@@ -686,7 +655,7 @@ class InteractionResponse:
             parent.id,
             parent.token,
             session=parent._session,
-            type=params.interaction_type,  # type: ignore
+            type=params.interaction_type,
             data=params.payload,
             multipart=params.multipart,
             files=params.files,
@@ -696,9 +665,6 @@ class InteractionResponse:
             state.store_view(view, message_id)
 
         self.responded_at = utils.utcnow()
-
-        if delete_after is not MISSING and (msg and msg.flags.ephemeral) is False:
-            await parent.delete_original_message(delay=delete_after)
 
     async def autocomplete_result(self, choices: List[ApplicationCommandOptionChoice]):
         """|coro|
@@ -784,7 +750,6 @@ class InteractionMessage(Message):
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -810,10 +775,6 @@ class InteractionMessage(Message):
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
-            If provided, the number of seconds to wait in the background
-            before deleting the message we just edited. If the deletion fails,
-            then it is silently ignored.
         file: :class:`File`
             The file to upload. This cannot be mixed with ``files`` parameter.
         files: List[:class:`File`]
@@ -840,14 +801,12 @@ class InteractionMessage(Message):
         :class:`InteractionMessage`
             The newly edited message.
         """
-
         return await self._state._interaction.edit_original_message(
             attachments=attachments,
             allowed_mentions=allowed_mentions,
             content=content,
             embeds=embeds,
             embed=embed,
-            delete_after=delete_after,
             file=file,
             files=files,
             view=view,
