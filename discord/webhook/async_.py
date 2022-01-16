@@ -114,7 +114,6 @@ class AsyncWebhookAdapter:
         files = files or []
         to_send: Optional[Union[str, aiohttp.FormData]] = None
         bucket = (route.webhook_id, route.webhook_token)
-
         try:
             lock = self._locks[bucket]
         except KeyError:
@@ -455,9 +454,6 @@ def handle_message_parameters(
         raise TypeError("Cannot mix embed and embeds keyword arguments.")
 
     payload = {}
-    # for interaction responses
-    if interaction_type is not MISSING:
-        payload["type"] = interaction_type
 
     if embeds is not MISSING:
         if len(embeds) > 10:
@@ -527,6 +523,10 @@ def handle_message_parameters(
             )
 
         payload["attachments"] = attachements
+        # for interaction responses.
+        if interaction_type is not MISSING:
+            payload = {"type": interaction_type, "data": payload}
+
         multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
         payload = None
 
