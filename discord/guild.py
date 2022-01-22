@@ -199,27 +199,32 @@ class Guild(Hashable):
 
         They are currently as follows:
 
-        - ``ANIMATED_ICON``: Guild can upload an animated icon.
-        - ``BANNER``: Guild can upload and use a banner. (i.e. :attr:`.banner`)
-        - ``COMMERCE``: Guild can sell things using store channels.
-        - ``COMMUNITY``: Guild is a community server.
-        - ``DISCOVERABLE``: Guild shows up in Server Discovery.
-        - ``FEATURABLE``: Guild is able to be featured in Server Discovery.
-        - ``INVITE_SPLASH``: Guild's invite page can have a special splash.
-        - ``MEMBER_VERIFICATION_GATE_ENABLED``: Guild has Membership Screening enabled.
+        - ``ANIMATED_BANNER``: Guild has access to set an animated guild banner.
+        - ``ANIMATED_ICON``: Guild has access to set an animated guild icon.
+        - ``BANNER``: Guild has access to set a guild banner image.
+        - ``COMMERCE``: Guild has access to use commerce features (i.e. create store channels).
+        - ``COMMUNITY``: Guild can enable welcome screen, Membership Screening, stage channels and discovery, and receives community updates.
+        - ``DISCOVERABLE``: Guild is able to be discovered in the directory.
+        - ``ENABLED_DISCOVERABLE_BEFORE``: Guild was able to be discovered in the directory before.
+        - ``FEATURABLE``: Guild is able to be featured in the directory.
+        - ``INVITE_SPLASH``: Guild has access to set an invite splash background.
+        - ``MEMBER_PROFILES``: Guild can have member profiles.
+        - ``MEMBER_VERIFICATION_GATE_ENABLED``: Guild has enabled Membership Screening.
         - ``MONETIZATION_ENABLED``: Guild has enabled monetization.
-        - ``MORE_EMOJI``: Guild has increased custom emoji slots.
         - ``MORE_STICKERS``: Guild has increased custom sticker slots.
-        - ``NEWS``: Guild can create news channels.
-        - ``PARTNERED``: Guild is a partnered server.
-        - ``PREVIEW_ENABLED``: Guild can be viewed before being accepted via Membership Screening.
+        - ``NEWS``: Guild has access to create news channels.
+        - ``NEW_THREAD_PERMISSIONS``: Guild has access to use new thread permissions.
+        - ``PARTNERED``: Guild is partnered.
+        - ``PREVIEW_ENABLED``: Guild can be previewed before joining via Membership Screening or the directory.
         - ``PRIVATE_THREADS``: Guild has access to create private threads.
+        - ``ROLE_ICONS``: Guild is able to set role icons.
         - ``SEVEN_DAY_THREAD_ARCHIVE``: Guild has access to the seven day archive time for threads.
         - ``THREE_DAY_THREAD_ARCHIVE``: Guild has access to the three day archive time for threads.
+        - ``THREADS_ENABLED``: Guild has access to create threads.
         - ``TICKETED_EVENTS_ENABLED``: Guild has enabled ticketed events.
-        - ``VANITY_URL``: Guild can have a vanity invite URL (e.g. discord.gg/discord-api).
-        - ``VERIFIED``: Guild is a verified server.
-        - ``VIP_REGIONS``: Guild has VIP voice regions.
+        - ``VANITY_URL``: Guild has access to set a vanity URL.
+        - ``VERIFIED``: Guild is verified.
+        - ``VIP_REGIONS``: Guild has access to set 384kbps bitrate in voice (previously VIP voice servers).
         - ``WELCOME_SCREEN_ENABLED``: Guild has enabled the welcome screen.
 
     premium_tier: :class:`int`
