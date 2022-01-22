@@ -139,7 +139,7 @@ class Thread(Messageable, Hashable):
         "_type",
         "_state",
         "_members",
-        "_created_at",
+        "created_at",
         "owner_id",
         "parent_id",
         "last_message_id",
@@ -199,7 +199,7 @@ class Thread(Messageable, Hashable):
         self.archive_timestamp = parse_time(data["archive_timestamp"])
         self.locked = data.get("locked", False)
         self.invitable = data.get("invitable", True)
-        self._created_at = parse_time(data.get("create_timestamp"))
+        self.created_at = parse_time(data.get("create_timestamp"))
 
     def _update(self, data):
         try:
