@@ -100,7 +100,7 @@ GuildFeature = Literal[
     "TICKETED_EVENTS_ENABLED",
     "VANITY_URL",
     "VERIFIED",
-    "VIP_REGION",
+    "VIP_REGIONS",
     "WELCOME_SCREEN_ENABLED",
 ]
 
