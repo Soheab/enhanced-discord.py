@@ -505,14 +505,14 @@ def handle_message_parameters(
         files = [file]
 
     if files:
-        attachements = payload.get("attachments", [])
+        attachments: List[Dict[str, Any]] = payload.get("attachments", [])
 
         for index, file in enumerate(files):
-            to_append: Dict[str, Union[int, str]] = {"id": index, "filename": file.filename}  # type: ignore | filename can't be None.
+            to_append: Dict[str, Any] = {"id": index, "filename": file.filename}
             if file.description is not None:
                 to_append["description"] = file.description
 
-            attachements.append(to_append)  # type: ignore | attachments isn't None.
+            attachments.append(to_append)
             multipart.append(
                 {
                     "name": f"files[{index}]",
@@ -522,7 +522,8 @@ def handle_message_parameters(
                 }
             )
 
-        payload["attachments"] = attachements
+        payload["attachments"] = attachments
+
         # for interaction responses.
         if interaction_type is not MISSING:
             payload = {"type": interaction_type, "data": payload}
