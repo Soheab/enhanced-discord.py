@@ -135,9 +135,7 @@ class Emoji(_EmojiTag, AssetMixin):
                     yield (attr, value)
 
     def __str__(self) -> str:
-        if self.animated:
-            return f"<a:{self.name}:{self.id}>"
-        return f"<:{self.name}:{self.id}>"
+        return self.mention
 
     def __int__(self) -> int:
         return self.id
@@ -181,6 +179,11 @@ class Emoji(_EmojiTag, AssetMixin):
     def guild(self) -> Guild:
         """:class:`Guild`: The guild this emoji belongs to."""
         return self._state._get_guild(self.guild_id)
+
+    @property
+    def mention(self) -> str:
+        """:class:`str`: Returns the emoji rendered for discord."""
+        return f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
 
     def is_usable(self) -> bool:
         """:class:`bool`: Whether the bot can use this emoji.
