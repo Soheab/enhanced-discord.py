@@ -1096,7 +1096,7 @@ class SyncWebhook(BaseWebhook):
 
         return message
 
-    def delete_message(self, message_id: int, /, delay: float = MISSING) -> None:
+    def delete_message(self, message_id: int, /, *, delay: float = MISSING) -> None:
         """Deletes a message owned by this webhook.
 
         This is a lower level interface to :meth:`WebhookMessage.delete` in case
