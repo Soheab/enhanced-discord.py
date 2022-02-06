@@ -664,6 +664,7 @@ class WebhookMessage(Message):
 
     async def edit(
         self,
+        attachments: List[Attachment] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
@@ -684,6 +685,11 @@ class WebhookMessage(Message):
 
         Parameters
         ------------
+        attachments: List[:class:`Attachment`]
+            A list of attachments to keep in the message. If ``[]`` is passed
+            then all attachments are removed.
+
+            .. versionadded:: 2.0
         content: Optional[:class:`str`]
             The content to edit the message with or ``None`` to clear it.
         embeds: List[:class:`Embed`]
@@ -733,6 +739,7 @@ class WebhookMessage(Message):
         """
         return await self._state._webhook.edit_message(
             self.id,
+            attachments=attachments,
             content=content,
             embeds=embeds,
             embed=embed,
@@ -1498,6 +1505,7 @@ class Webhook(BaseWebhook):
         self,
         message_id: int,
         *,
+        attachments: List[Attachment] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
@@ -1521,8 +1529,14 @@ class Webhook(BaseWebhook):
 
         Parameters
         ------------
+
         message_id: :class:`int`
             The message ID to edit.
+        attachments: List[:class:`Attachment`]
+            A list of attachments to keep in the message. If ``[]`` is passed
+            then all attachments are removed.
+
+            .. versionadded:: 2.0
         content: Optional[:class:`str`]
             The content to edit the message with or ``None`` to clear it.
         embeds: List[:class:`Embed`]
@@ -1584,6 +1598,7 @@ class Webhook(BaseWebhook):
 
         previous_mentions: Optional[AllowedMentions] = getattr(self._state, "allowed_mentions", None)
         params = handle_message_parameters(
+            attachments=attachments,
             content=content,
             file=file,
             files=files,
@@ -1625,11 +1640,13 @@ class Webhook(BaseWebhook):
 
         Parameters
         ------------
-        delay: Optional[:class:`float`]
-            If provided, the number of seconds to wait before deleting the message.
-            The waiting is done in the background and deletion failures are ignored.
         message_id: :class:`int`
             The message ID to delete.
+        delay: :class:`float`
+            If provided, the number of seconds to wait before deleting the message.
+            The waiting is done in the background and deletion failures are ignored.
+
+            .. versionadded:: 2.0
 
         Raises
         -------
