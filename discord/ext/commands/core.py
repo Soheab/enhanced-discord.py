@@ -2515,9 +2515,6 @@ def dynamic_cooldown(
 
     .. versionadded:: 2.0
 
-    .. versionchanged:: 2.0
-
-
     Parameters
     ------------
     cooldown: Callable[[:class:`.discord.Message`], Optional[:class:`.Cooldown`]]
@@ -2551,10 +2548,6 @@ def max_concurrency(number: int, per: BucketType = BucketType.default, *, wait: 
     a set number of people can run the command.
 
     .. versionadded:: 1.3
-
-    .. versionchanged:: 2.0
-
-        Adds an attribute called ``_max_concurrency`` to the command that allows you to get the set value.
 
     Parameters
     -------------
