@@ -222,7 +222,10 @@ class PartialEmoji(_EmojiTag, AssetMixin):
 
     @property
     def mention(self) -> str:
-        """:class:`str`: Returns the emoji rendered for discord. This is the name if :attr:`.id` is ``None``."""
+        """:class:`str`: Returns the emoji rendered for discord. This is the name if :attr:`.id` is ``None``.
+
+        .. versionadded:: 2.0
+        """
         if self.id is None:
             return self.name
 

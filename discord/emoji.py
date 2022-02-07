@@ -182,7 +182,10 @@ class Emoji(_EmojiTag, AssetMixin):
 
     @property
     def mention(self) -> str:
-        """:class:`str`: Returns the emoji rendered for discord."""
+        """:class:`str`: Returns the emoji rendered for discord.
+
+        .. versionadded:: 2.0
+        """
         return f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
 
     def is_usable(self) -> bool:
