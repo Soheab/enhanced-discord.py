@@ -750,14 +750,14 @@ class WebhookMessage(Message):
             allowed_mentions=allowed_mentions,
         )
 
-    async def delete(self, *, delay: Optional[float] = None) -> None:
+    async def delete(self, *, delay: float = MISSING) -> None:
         """|coro|
 
         Deletes the message.
 
         Parameters
         -----------
-        delay: Optional[:class:`float`]
+        delay: :class:`float`
             If provided, the number of seconds to wait before deleting the message.
             The waiting is done in the background and deletion failures are ignored.
 
@@ -770,9 +770,7 @@ class WebhookMessage(Message):
         HTTPException
             Deleting the message failed.
         """
-
-        if delay is not None:
-            await self._state._webhook.delete_message(self.id, delay=delay)
+        await self._state._webhook.delete_message(self.id, delay=delay)
 
 
 class BaseWebhook(Hashable):
@@ -1365,10 +1363,6 @@ class Webhook(BaseWebhook):
             The thread to send this webhook to.
 
             .. versionadded:: 2.0
-        delete_after: :class:`float`
-            If provided, the number of seconds to wait in the background
-            before deleting the message we just sent. If the deletion fails,
-            then it is silently ignored.
 
         Raises
         --------
