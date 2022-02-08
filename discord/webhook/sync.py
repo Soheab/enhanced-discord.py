@@ -452,12 +452,12 @@ class SyncWebhookMessage(Message):
             allowed_mentions=allowed_mentions,
         )
 
-    def delete(self, *, delay: Optional[float] = None) -> None:
+    def delete(self, *, delay: float = MISSING) -> None:
         """Deletes the message.
 
         Parameters
         -----------
-        delay: Optional[:class:`float`]
+        delay: :class:`float`
             If provided, the number of seconds to wait before deleting the message.
             This blocks the thread.
 
