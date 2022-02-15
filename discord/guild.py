@@ -2682,7 +2682,7 @@ class Guild(Hashable):
         user: Snowflake,
         *,
         reason: Optional[str] = None,
-        delete_message_days: Literal[0, 1, 2, 3, 4, 5, 6, 7] = 1,
+        delete_message_days: Literal[0, 1, 2, 3, 4, 5, 6, 7] = 0,
     ) -> None:
         """|coro|
 
@@ -2699,7 +2699,7 @@ class Guild(Hashable):
             The user to ban from their guild.
         delete_message_days: :class:`int`
             The number of days worth of messages to delete from the user
-            in the guild. The minimum is 0 and the maximum is 7.
+            in the guild. The minimum is 0 (default) and the maximum is 7.
         reason: Optional[:class:`str`]
             The reason the user got banned.
 
