@@ -2700,6 +2700,10 @@ class Guild(Hashable):
         delete_message_days: :class:`int`
             The number of days worth of messages to delete from the user
             in the guild. The minimum is 0 (default) and the maximum is 7.
+
+            .. versionchanged:: 2.0
+                The default value was changed from 1 to 0
+
         reason: Optional[:class:`str`]
             The reason the user got banned.
 
