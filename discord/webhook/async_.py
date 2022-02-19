@@ -664,15 +664,15 @@ class WebhookMessage(Message):
 
     async def edit(
         self,
+        allowed_mentions: Optional[AllowedMentions] = None,
         attachments: List[Attachment] = MISSING,
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
-        allowed_mentions: Optional[AllowedMentions] = None,
     ) -> WebhookMessage:
         """|coro|
 
@@ -685,6 +685,9 @@ class WebhookMessage(Message):
 
         Parameters
         ------------
+        allowed_mentions: Optional[:class:`AllowedMentions`]
+            Controls the mentions being processed in this message.
+            See :meth:`.abc.Messageable.send` for more information.
         attachments: List[:class:`Attachment`]
             A list of attachments to keep in the message. If ``[]`` is passed
             then all attachments are removed.
@@ -697,7 +700,7 @@ class WebhookMessage(Message):
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
             then it is silently ignored.
@@ -710,9 +713,7 @@ class WebhookMessage(Message):
             ``file`` parameter.
 
             .. versionadded:: 2.0
-        allowed_mentions: :class:`AllowedMentions`
-            Controls the mentions being processed in this message.
-            See :meth:`.abc.Messageable.send` for more information.
+
         view: Optional[:class:`~discord.ui.View`]
             The updated view to update this message with. If ``None`` is passed then
             the view is removed.
@@ -750,14 +751,14 @@ class WebhookMessage(Message):
             allowed_mentions=allowed_mentions,
         )
 
-    async def delete(self, *, delay: float = MISSING) -> None:
+    async def delete(self, *, delay: Optional[float] = None) -> None:
         """|coro|
 
         Deletes the message.
 
         Parameters
         -----------
-        delay: :class:`float`
+        delay: Optional[:class:`float`]
             If provided, the number of seconds to wait before deleting the message.
             The waiting is done in the background and deletion failures are ignored.
 
@@ -1252,7 +1253,7 @@ class Webhook(BaseWebhook):
         view: View = MISSING,
         thread: Snowflake = MISSING,
         wait: Literal[True],
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
     ) -> WebhookMessage:
         ...
 
@@ -1273,7 +1274,7 @@ class Webhook(BaseWebhook):
         view: View = MISSING,
         thread: Snowflake = MISSING,
         wait: Literal[False] = ...,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
     ) -> None:
         ...
 
@@ -1293,7 +1294,7 @@ class Webhook(BaseWebhook):
         view: View = MISSING,
         thread: Snowflake = MISSING,
         wait: bool = False,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
     ) -> Optional[WebhookMessage]:
         """|coro|
 
@@ -1344,7 +1345,7 @@ class Webhook(BaseWebhook):
         embeds: List[:class:`Embed`]
             A list of embeds to send with the content. Maximum of 10. This cannot
             be mixed with the ``embed`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just sent. If the deletion fails,
             then it is silently ignored.
@@ -1427,7 +1428,7 @@ class Webhook(BaseWebhook):
         if thread is not MISSING:
             thread_id = thread.id
 
-        if delete_after is not MISSING:
+        if delete_after is not None:
             wait = True
 
         data = await adapter.execute_webhook(
@@ -1449,7 +1450,7 @@ class Webhook(BaseWebhook):
             message_id = None if msg is None else msg.id
             self._state.store_view(view, message_id)
 
-        if delete_after is not MISSING:
+        if delete_after is not None:
             await msg.delete(delay=delete_after)  # type: ignore
 
         return msg
@@ -1503,7 +1504,7 @@ class Webhook(BaseWebhook):
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -1538,7 +1539,7 @@ class Webhook(BaseWebhook):
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
             then it is silently ignored.
@@ -1617,12 +1618,12 @@ class Webhook(BaseWebhook):
         if view and not view.is_finished():
             self._state.store_view(view, message_id)
 
-        if delete_after is not MISSING and message.flags.ephemeral is False:
+        if delete_after is not None and message.flags.ephemeral is False:
             await message.delete(delay=delete_after)
 
         return message
 
-    async def delete_message(self, message_id: int, /, *, delay: float = MISSING) -> None:
+    async def delete_message(self, message_id: int, /, *, delay: Optional[float] = None) -> None:
         """|coro|
 
         Deletes a message owned by this webhook.
@@ -1636,7 +1637,7 @@ class Webhook(BaseWebhook):
         ------------
         message_id: :class:`int`
             The message ID to delete.
-        delay: :class:`float`
+        delay: Optional[:class:`float`]
             If provided, the number of seconds to wait before deleting the message.
             The waiting is done in the background and deletion failures are ignored.
 
@@ -1660,7 +1661,7 @@ class Webhook(BaseWebhook):
             session=self.session,
         )
 
-        if delay is not MISSING:
+        if delay is not None:
 
             async def inner_call(delay: float = delay):
                 await asyncio.sleep(delay)

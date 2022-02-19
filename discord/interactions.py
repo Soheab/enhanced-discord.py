@@ -260,7 +260,7 @@ class Interaction:
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -277,7 +277,7 @@ class Interaction:
 
         Parameters
         ------------
-        allowed_mentions: :class:`AllowedMentions`
+        allowed_mentions: Optional[:class:`AllowedMentions`]
             Controls the mentions being processed in this message.
             See :meth:`.abc.Messageable.send` for more information.
         attachments: List[:class:`Attachment`]
@@ -292,7 +292,7 @@ class Interaction:
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
             then it is silently ignored.
@@ -350,12 +350,12 @@ class Interaction:
         if view and not view.is_finished():
             self._state.store_view(view, message.id)
 
-        if delete_after is not MISSING and message.flags.ephemeral is False:
+        if delete_after is not None and message.flags.ephemeral is False:
             await message.delete(delay=delete_after)
 
         return message
 
-    async def delete_original_message(self, delay: float = MISSING) -> None:
+    async def delete_original_message(self, delay: Optional[float] = None) -> None:
         """|coro|
 
         Deletes the original interaction response message.
@@ -383,7 +383,7 @@ class Interaction:
             session=self._session,
         )
 
-        if delay is not MISSING:
+        if delay is not None:
 
             async def inner_call(delay: float = delay):
                 await asyncio.sleep(delay)
@@ -495,7 +495,7 @@ class InteractionResponse:
         allowed_mentions: AllowedMentions = MISSING,
         embed: Embed = MISSING,
         embeds: List[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         view: View = MISSING,
         tts: bool = False,
         ephemeral: bool = False,
@@ -521,7 +521,7 @@ class InteractionResponse:
         embed: :class:`Embed`
             The rich embed for the content to send. This cannot be mixed with
             ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just sent. If the deletion fails,
             then it is silently ignored.
@@ -590,7 +590,7 @@ class InteractionResponse:
 
         self.responded_at = utils.utcnow()
 
-        if delete_after is not MISSING and ephemeral is False:
+        if delete_after is not None and ephemeral is False:
             await parent.delete_original_message(delay=delete_after)
 
     async def edit_message(
@@ -601,7 +601,7 @@ class InteractionResponse:
         content: Optional[Any] = MISSING,
         embed: Optional[Embed] = MISSING,
         embeds: List[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -628,7 +628,7 @@ class InteractionResponse:
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
             then it is silently ignored.
@@ -697,7 +697,7 @@ class InteractionResponse:
 
         self.responded_at = utils.utcnow()
 
-        if delete_after is not MISSING and (msg and msg.flags.ephemeral) is False:
+        if delete_after is not None and (msg and msg.flags.ephemeral) is False:
             await parent.delete_original_message(delay=delete_after)
 
     async def autocomplete_result(self, choices: List[ApplicationCommandOptionChoice]):
@@ -784,7 +784,7 @@ class InteractionMessage(Message):
         content: Optional[str] = MISSING,
         embeds: List[Embed] = MISSING,
         embed: Optional[Embed] = MISSING,
-        delete_after: float = MISSING,
+        delete_after: Optional[float] = None,
         file: File = MISSING,
         files: List[File] = MISSING,
         view: Optional[View] = MISSING,
@@ -795,7 +795,7 @@ class InteractionMessage(Message):
 
         Parameters
         ------------
-        allowed_mentions: :class:`AllowedMentions`
+        allowed_mentions: Optional[:class:`AllowedMentions`]
             Controls the mentions being processed in this message.
             See :meth:`.abc.Messageable.send` for more information.
         attachments: List[:class:`Attachment`]
@@ -810,7 +810,7 @@ class InteractionMessage(Message):
         embed: Optional[:class:`Embed`]
             The embed to edit the message with. ``None`` suppresses the embeds.
             This should not be mixed with the ``embeds`` parameter.
-        delete_after: :class:`float`
+        delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
             then it is silently ignored.
