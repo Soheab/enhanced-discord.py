@@ -74,7 +74,7 @@ New Features
     - |commands| Add :meth:`Context.defer <.ext.commands.Context.defer>`
     - Add :class:`~ext.commands.Option`
 - Add ``delete_after`` kwarg to Interaction responses
-- Add missing kwargs to Interaction and (Sync)Webhook
+- Add missing fields to Interaction and (Sync)Webhook related classes/methods
     - :meth:`Interaction.delete_original_message`: ``delay``
     - :meth:`Interaction.edit_original_message`: ``attachments, allowed_mentions, delete_after``
     - :meth:`InteractionResponse.send_message`: ``allowed_mentions, delete_after, file, files``
