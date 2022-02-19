@@ -74,11 +74,22 @@ New Features
     - |commands| Add :meth:`Context.defer <.ext.commands.Context.defer>`
     - Add :class:`~ext.commands.Option`
 - Add ``delete_after`` kwarg to Interaction responses
+- Add missing kwargs to Interaction and (Sync)Webhook
+    - :meth:`Interaction.delete_original_message`: ``delay``
+    - :meth:`Interaction.edit_original_message`: ``attachments, allowed_mentions, delete_after``
+    - :meth:`InteractionResponse.send_message`: ``allowed_mentions, delete_after, file, files``
+    - :meth:`InteractionResponse.edit_message`: ``allowed_mentions, attachments, delete_after, file, files``
+    - :meth:`InteractionMessage.edit`: ``allowed_mentions, attachments, delete_after``
+    - :meth:`Webhook.edit_message`: ``attachments, delete_after``
+    - :meth:`Webhook.delete_message`: ``delay``
+    - :meth:`WebhookMessage.edit`: ``attachments, delete_after``
+    - :meth:`SyncWebhook.edit_message`: ``attachments, delete_after``
+    - :meth:`SyncWebhook.delete_message`: ``delay``
+    - :meth:`SyncWebhookMessage.edit`: ``attachments, delete_after``
 - Update permissions
     - Add :attr:`Permissions.start_embedded_activities`
     - Add :attr:`Permissions.admin` as alias to :attr:`Permissions.administrator`
     - Add :attr:`Permissions.moderate_members`
-
 - Images and thumbnails of an :class:`Embed` can now be set through their property :attr:`Embed.image` / :attr:`Embed.thumbnail`
 - ``static_format`` is now preferred over ``format`` in an :class:`Asset`
 
