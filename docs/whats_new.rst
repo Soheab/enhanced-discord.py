@@ -74,7 +74,11 @@ New Features
     - |commands| Add :meth:`Context.defer <.ext.commands.Context.defer>`
     - Add :class:`~ext.commands.Option`
 - Add ``delete_after`` kwarg to Interaction responses
-- Add missing fields to Interaction and (Sync)Webhook related classes/methods
+- Update permissions
+    - Add :attr:`Permissions.start_embedded_activities`
+    - Add :attr:`Permissions.admin` as alias to :attr:`Permissions.administrator`
+    - Add :attr:`Permissions.moderate_members`
+- Add missing kwargs to Interaction and (Sync)Webhook
     - :meth:`Interaction.delete_original_message`: ``delay``
     - :meth:`Interaction.edit_original_message`: ``attachments, allowed_mentions, delete_after``
     - :meth:`InteractionResponse.send_message`: ``allowed_mentions, delete_after, file, files``
@@ -86,10 +90,30 @@ New Features
     - :meth:`SyncWebhook.edit_message`: ``attachments, delete_after``
     - :meth:`SyncWebhook.delete_message`: ``delay``
     - :meth:`SyncWebhookMessage.edit`: ``attachments, delete_after``
-- Update permissions
-    - Add :attr:`Permissions.start_embedded_activities`
-    - Add :attr:`Permissions.admin` as alias to :attr:`Permissions.administrator`
-    - Add :attr:`Permissions.moderate_members`
+- Add command attributes for checks
+    - |commands| Add :class:`~ext.commands.Command`.required_role if :meth:`@commands.has_role <ext.commands.has_role>` is used
+    - |commands| Add :class:`~ext.commands.Command`.required_roles if :meth:`@commands.has_any_role <ext.commands.has_role>` is used
+    - |commands| Add :class:`~ext.commands.Command`.bot_required_role if :meth:`@commands.bot_has_role <ext.commands.bot_has_role>` is used
+    - |commands| Add :class:`~ext.commands.Command`.bot_required_roles if :meth:`@commands.bot_has_any_role <ext.commands.bot_has_any_role>` is used
+    - |commands| Add :class:`~ext.commands.Command`.required_permissions if :meth:`@commands.has_permissions <ext.commands.has_permissions>` is used
+    - |commands| Add :class:`~ext.commands.Command`.bot_required_permissions if :meth:`@commands.bot_has_permissions <ext.commands.bot_has_permissions>` is used
+    - |commands| Add :class:`~ext.commands.Command`.required_guild_permissions if :meth:`@commands.has_guild_permissions <ext.commands.has_guild_permissions>` is used
+    - |commands| Add :class:`~ext.commands.Command`.bot_required_guild_permissions if :meth:`@commands.bot_has_guild_permissions <ext.commands.bot_has_guild_permissions>` is used
+    - |commands| Add :class:`~ext.commands.Command`.cooldown if :meth:`@commands.cooldown <ext.commands.cooldown>` or :meth:`@commands.dynamic_cooldown <ext.commands.dynamic_cooldown>` is used
+
+    **Note:** Use `getattr <https://docs.python.org/3/library/functions.html#getattr>`_ to access these attributes.
+
+    **Example:**
+
+    .. code-block:: python3
+
+        required_permissions = getattr(command, "required_permissions", None)  # None if not set
+        if required_permissions is not None:
+            # print all permissions by name, separated by a comma
+            print(f"Permissions for {command}: ", ", ".join(required_permissions.keys())) 
+        else:
+            print(f"{command} does not use the commands.has_permissions decorator.")
+            
 - Images and thumbnails of an :class:`Embed` can now be set through their property :attr:`Embed.image` / :attr:`Embed.thumbnail`
 - ``static_format`` is now preferred over ``format`` in an :class:`Asset`
 
@@ -194,7 +218,7 @@ New Features
 
 
 Bug Fixes
-~~~~~~~~~~~
+~~~~~~~~~~
 
 - :class:`Channel` converters now work in DMs again
 - Fix :attr:`Interaction.channel` being None in threads
