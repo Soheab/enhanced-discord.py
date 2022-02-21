@@ -113,7 +113,7 @@ New Features
             print(f"Permissions for {command}: ", ", ".join(required_permissions.keys())) 
         else:
             print(f"{command} does not use the commands.has_permissions decorator.")
-            
+
 - Images and thumbnails of an :class:`Embed` can now be set through their property :attr:`Embed.image` / :attr:`Embed.thumbnail`
 - ``static_format`` is now preferred over ``format`` in an :class:`Asset`
 

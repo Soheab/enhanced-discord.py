@@ -114,6 +114,7 @@ class AsyncWebhookAdapter:
         files = files or []
         to_send: Optional[Union[str, aiohttp.FormData]] = None
         bucket = (route.webhook_id, route.webhook_token)
+
         try:
             lock = self._locks[bucket]
         except KeyError:
@@ -134,6 +135,7 @@ class AsyncWebhookAdapter:
         method = route.method
         url = route.url
         webhook_id = route.webhook_id
+
         async with AsyncDeferredLock(lock) as lock:
             for attempt in range(5):
                 for file in files:
@@ -143,7 +145,6 @@ class AsyncWebhookAdapter:
                     form_data = aiohttp.FormData(quote_fields=False)
                     for p in multipart:
                         form_data.add_field(**p)
-
                     to_send = form_data
 
                 try:
@@ -428,7 +429,6 @@ class ExecuteWebhookParameters(NamedTuple):
     payload: Optional[Dict[str, Any]]
     multipart: Optional[List[Dict[str, Any]]]
     files: Optional[List[File]]
-    interaction_type: Optional[int]
 
 
 def handle_message_parameters(
@@ -454,7 +454,6 @@ def handle_message_parameters(
         raise TypeError("Cannot mix embed and embeds keyword arguments.")
 
     payload = {}
-
     if embeds is not MISSING:
         if len(embeds) > 10:
             raise InvalidArgument("embeds has a maximum of 10 elements.")
@@ -505,14 +504,14 @@ def handle_message_parameters(
         files = [file]
 
     if files:
-        attachments: List[Dict[str, Any]] = payload.get("attachments", [])
+        _attachments: List[Dict[str, Any]] = payload.get("attachments", [])
 
         for index, file in enumerate(files):
             to_append: Dict[str, Any] = {"id": index, "filename": file.filename}
             if file.description is not None:
                 to_append["description"] = file.description
 
-            attachments.append(to_append)
+            _attachments.append(to_append)
             multipart.append(
                 {
                     "name": f"files[{index}]",
@@ -522,7 +521,7 @@ def handle_message_parameters(
                 }
             )
 
-        payload["attachments"] = attachments
+        payload["attachments"] = _attachments
 
         # for interaction responses.
         if interaction_type is not MISSING:
@@ -531,9 +530,7 @@ def handle_message_parameters(
         multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
         payload = None
 
-    return ExecuteWebhookParameters(
-        payload=payload, multipart=multipart, files=files, interaction_type=interaction_type
-    )
+    return ExecuteWebhookParameters(payload=payload, multipart=multipart, files=files)
 
 
 async_context: ContextVar[AsyncWebhookAdapter] = ContextVar("async_webhook_context", default=AsyncWebhookAdapter())

@@ -308,7 +308,7 @@ class Interaction:
         delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
-            then it is silently ignored.
+            then it is silently ignored. Ephemeral messages cannot be deleted.
         file: :class:`File`
             The file to upload. This cannot be mixed with ``files`` parameter.
         files: List[:class:`File`]
@@ -644,7 +644,7 @@ class InteractionResponse:
         delete_after: Optional[:class:`float`]
             If provided, the number of seconds to wait in the background
             before deleting the message we just edited. If the deletion fails,
-            then it is silently ignored.
+            then it is silently ignored. Ephemeral messages cannot be deleted.
         file: :class:`~discord.File`
             The file to upload.
 
