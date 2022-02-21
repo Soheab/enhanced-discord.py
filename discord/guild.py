@@ -194,39 +194,9 @@ class Guild(Hashable):
     default_notifications: :class:`NotificationLevel`
         The guild's notification settings.
     features: List[:class:`str`]
-        A list of features that the guild has. The features that a guild can have are
-        subject to arbitrary change by Discord.
-
-        They are currently as follows:
-
-        - ``ANIMATED_BANNER``: Guild has access to set an animated guild banner.
-        - ``ANIMATED_ICON``: Guild has access to set an animated guild icon.
-        - ``BANNER``: Guild has access to set a guild banner image.
-        - ``COMMERCE``: Guild has access to use commerce features (i.e. create store channels).
-        - ``COMMUNITY``: Guild can enable welcome screen, Membership Screening, stage channels and discovery, and receives community updates.
-        - ``DISCOVERABLE``: Guild is able to be discovered in the directory.
-        - ``ENABLED_DISCOVERABLE_BEFORE``: Guild was able to be discovered in the directory before.
-        - ``FEATURABLE``: Guild is able to be featured in the directory.
-        - ``INVITE_SPLASH``: Guild has access to set an invite splash background.
-        - ``MEMBER_PROFILES``: Guild can have member profiles.
-        - ``MEMBER_VERIFICATION_GATE_ENABLED``: Guild has enabled Membership Screening.
-        - ``MONETIZATION_ENABLED``: Guild has enabled monetization.
-        - ``MORE_STICKERS``: Guild has increased custom sticker slots.
-        - ``NEWS``: Guild has access to create news channels.
-        - ``NEW_THREAD_PERMISSIONS``: Guild has access to use new thread permissions.
-        - ``PARTNERED``: Guild is partnered.
-        - ``PREVIEW_ENABLED``: Guild can be previewed before joining via Membership Screening or the directory.
-        - ``PRIVATE_THREADS``: Guild has access to create private threads.
-        - ``ROLE_ICONS``: Guild is able to set role icons.
-        - ``SEVEN_DAY_THREAD_ARCHIVE``: Guild has access to the seven day archive time for threads.
-        - ``THREE_DAY_THREAD_ARCHIVE``: Guild has access to the three day archive time for threads.
-        - ``THREADS_ENABLED``: Guild has access to create threads.
-        - ``TICKETED_EVENTS_ENABLED``: Guild has enabled ticketed events.
-        - ``VANITY_URL``: Guild has access to set a vanity URL.
-        - ``VERIFIED``: Guild is verified.
-        - ``VIP_REGIONS``: Guild has access to set 384kbps bitrate in voice (previously VIP voice servers).
-        - ``WELCOME_SCREEN_ENABLED``: Guild has enabled the welcome screen.
-
+        A list of features that the guild has.
+        Refer to the `API Docs <https://discord.com/developers/docs/resources/guild#guild-object-guild-features>`_
+        for a listing of possible features.
     premium_tier: :class:`int`
         The premium tier for this guild. Corresponds to "Nitro Server" in the official UI.
         The number goes from 0 to 3 inclusive.

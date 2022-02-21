@@ -74,35 +74,6 @@ MFALevel = Literal[0, 1]
 VerificationLevel = Literal[0, 1, 2, 3, 4]
 NSFWLevel = Literal[0, 1, 2, 3]
 PremiumTier = Literal[0, 1, 2, 3]
-GuildFeature = Literal[
-    "ANIMATED_BANNER",
-    "ANIMATED_ICON",
-    "BANNER",
-    "COMMERCE",
-    "COMMUNITY",
-    "DISCOVERABLE",
-    "ENABLED_DISCOVERABLE_BEFORE",
-    "FEATURABLE",
-    "INVITE_SPLASH",
-    "MEMBER_PROFILES",
-    "MEMBER_VERIFICATION_GATE_ENABLED",
-    "MONETIZATION_ENABLED",
-    "MORE_STICKERS",
-    "NEWS",
-    "NEW_THREAD_PERMISSIONS",
-    "PARTNERED",
-    "PREVIEW_ENABLED",
-    "PRIVATE_THREADS",
-    "ROLE_ICONS",
-    "SEVEN_DAY_THREAD_ARCHIVE",
-    "THREE_DAY_THREAD_ARCHIVE",
-    "THREADS_ENABLED",
-    "TICKETED_EVENTS_ENABLED",
-    "VANITY_URL",
-    "VERIFIED",
-    "VIP_REGIONS",
-    "WELCOME_SCREEN_ENABLED",
-]
 
 
 class _BaseGuildPreview(UnavailableGuild):
@@ -111,7 +82,7 @@ class _BaseGuildPreview(UnavailableGuild):
     splash: Optional[str]
     discovery_splash: Optional[str]
     emojis: List[Emoji]
-    features: List[GuildFeature]
+    features: List[str]
     description: Optional[str]
 
 
