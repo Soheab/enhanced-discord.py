@@ -34,7 +34,7 @@ Breaking Changes
 
 - Intents.default() has been removed
 - intents is now a required kwarg in :class:`Client` and :class:`~ext.commands.Bot`
-
+- Rename `MessageType.application_command` to :meth:`MessageType.chat_input_command` to be consistent with the API
 
 New Features
 ~~~~~~~~~~~~~~
@@ -56,6 +56,7 @@ New Features
 - Add support for ``int()`` to all objects with an id attribute which will return the ``.id``
 - Add support for ``str()`` to :class:`Message` returning the :attr:`Message.content`
 - Add ``silent`` kwarg to :meth:`Message.delete`
+- Add :meth:`MessageType.context_menu_command`
 - Added support for timeout
     - Add :attr:`Guild.timed_out_members`
     - Add :attr:`Member.timed_out`

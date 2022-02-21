@@ -1352,7 +1352,7 @@ of :class:`enum.Enum`.
         The system message denoting that the author is replying to a message.
 
         .. versionadded:: 2.0
-    .. attribute:: application_command
+    .. attribute:: chat_input_command
 
         The system message denoting that an application (or "slash") command was executed.
 
@@ -1366,6 +1366,11 @@ of :class:`enum.Enum`.
 
         The system message denoting the message in the thread that is the one that started the
         thread's conversation topic.
+
+        .. versionadded:: 2.0
+    .. attribute:: context_menu_command
+
+        The system message denoting that a message was sent in response to a context menu
 
         .. versionadded:: 2.0
 
