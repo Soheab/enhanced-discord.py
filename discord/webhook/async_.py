@@ -429,6 +429,7 @@ class ExecuteWebhookParameters(NamedTuple):
     payload: Optional[Dict[str, Any]]
     multipart: Optional[List[Dict[str, Any]]]
     files: Optional[List[File]]
+    interaction_type: Optional[int]
 
 
 def handle_message_parameters(
@@ -530,7 +531,9 @@ def handle_message_parameters(
         multipart.append({"name": "payload_json", "value": utils._to_json(payload)})
         payload = None
 
-    return ExecuteWebhookParameters(payload=payload, multipart=multipart, files=files)
+    return ExecuteWebhookParameters(
+        payload=payload, multipart=multipart, files=files, interaction_type=interaction_type
+    )
 
 
 async_context: ContextVar[AsyncWebhookAdapter] = ContextVar("async_webhook_context", default=AsyncWebhookAdapter())
