@@ -1050,7 +1050,7 @@ class Message(Hashable):
             MessageType.reply,
             MessageType.chat_input_command,
             MessageType.thread_starter_message,
-            MessageType.context_menu_command
+            MessageType.context_menu_command,
         )
 
     @utils.cached_slot_property("_cs_system_content")
