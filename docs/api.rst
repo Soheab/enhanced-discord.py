@@ -4261,6 +4261,30 @@ Embed
 .. autoclass:: Embed
     :members:
 
+EmbedAuthor
+~~~~~~
+
+.. attributetable:: EmbedAuthor
+
+.. autoclass:: EmbedAuthor
+    :members:
+
+EmbedField
+~~~~~~
+
+.. attributetable:: EmbedField
+
+.. autoclass:: EmbedField
+    :members:
+
+EmbedFooter
+~~~~~~
+
+.. attributetable:: EmbedFooter
+
+.. autoclass:: EmbedFooter
+    :members:
+    
 AllowedMentions
 ~~~~~~~~~~~~~~~~~
 

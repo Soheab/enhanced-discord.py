@@ -117,6 +117,18 @@ New Features
 
 - Images and thumbnails of an :class:`Embed` can now be set through their property :attr:`Embed.image` / :attr:`Embed.thumbnail`
 - ``static_format`` is now preferred over ``format`` in an :class:`Asset`
+- Embed changes
+    - Add the following kwargs to the constructor
+        - ``image``: takes a URL to set as the image
+        - ``thumbnail``: takes a URL to set as the thumbnail
+        - ``author``: takes an instance of :class:`EmbedAuthor` to set the author
+        - ``footer``: takes an instance of :class:`EmbedFooter` to set the footer
+        - ``fields``: takes an iterable of :class:`EmbedField` to set the fields
+
+    - Add :class:`EmbedField`, a class that represents a field.
+    - Add :class:`EmbedFooter`, a class that represents the footer.
+    - Add :class:`EmbedAuthor`, a class that represents the author.
+    - Add :meth:`Embed.append_field`, a method that takes an instance of :class:`EmbedField` and adds it to the embed.
 
 
 v2.0.0 - Before enhanced-discord.py

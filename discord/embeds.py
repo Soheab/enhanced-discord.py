@@ -25,8 +25,9 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import datetime
+from dataclasses import dataclass
+
 from typing import Any, Dict, Final, Iterable, List, Mapping, Protocol, TYPE_CHECKING, Tuple, Type, TypeVar, Union
-from dataclasses import dataclass, field
 
 from . import utils
 from .colour import Colour
@@ -110,11 +111,35 @@ if TYPE_CHECKING:
 
 @dataclass
 class EmbedField:
+    """Represents an :class:`Embed` field.
+
+        .. container:: operations
+
+        .. describe:: len(x)
+
+            Returns the total size of the field
+            (the length of the name plus the length of the value).
+
+    .. versionadded:: 2.0
+
+    Attributes
+    ----------
+    name: :class:`str`
+        The name of the field.
+    value: :class:`str`
+        The value of the field.
+    inline: :class:`bool`
+        Whether the field should display inline.
+    """
+
     name: str
     value: str
-    inline: bool = field(default=False)
+    inline: bool = False
 
-    def to_dict(self):
+    def __len__(self) -> int:
+        return len(self.name) + len(self.value)
+
+    def to_dict(self) -> Dict[str, str]:
         return {
             "name": self.name,
             "value": self.value,
@@ -129,11 +154,34 @@ class EmbedField:
 
 @dataclass(frozen=True)
 class EmbedFooter:
+    """Represents an :class:`Embed` footer.
+
+        .. container:: operations
+
+        .. describe:: len(x)
+
+            Returns the total size of the footer (the length of the text).
+
+    .. versionadded:: 2.0
+
+    Attributes
+    ----------
+    text: Optional[:class:`str`]
+        The footer text. If any else :class:`Embed.Empty`.
+    icon_url: Optional[:class:`str`]
+        The URL of the footer icon. If any else :class:`Embed.Empty`.
+    proxy_icon_url: Optional[:class:`str`]
+        The proxy URL of the footer icon. If any else :class:`Embed.Empty`.
+    """
+
     text: str
     icon_url: MaybeEmpty[str] = EmptyEmbed
     proxy_icon_url: MaybeEmpty[str] = EmptyEmbed
 
-    def to_dict(self):
+    def __len__(self) -> int:
+        return len(self.text)
+
+    def to_dict(self) -> Dict[str, str]:
         payload: Dict[str, Any] = {}
         if self.text is not EmptyEmbed:
             payload["text"] = self.text
@@ -145,12 +193,37 @@ class EmbedFooter:
 
 @dataclass(frozen=True)
 class EmbedAuthor:
+    """Represents an :class:`Embed` author.
+
+        .. container:: operations
+
+        .. describe:: len(x)
+
+            Returns the total size of the author (the length of the name).
+
+    .. versionadded:: 2.0
+
+    Attributes
+    ----------
+    name: Optional[:class:`str`]
+        The name of the author. If any else :class:`Embed.Empty`.
+    url: Optional[:class:`str`]
+        The URL of the author. If any else :class:`Embed.Empty`.
+    icon_url: Optional[:class:`str`]
+        The URL of the author icon. If any else :class:`Embed.Empty`.
+    proxy_icon_url: Optional[:class:`str`]
+        The proxy URL of the author icon. If any else :class:`Embed.Empty`.
+    """
+
     name: str
     url: MaybeEmpty[str] = EmptyEmbed
     icon_url: MaybeEmpty[str] = EmptyEmbed
     proxy_icon_url: MaybeEmpty[str] = EmptyEmbed
 
-    def to_dict(self):
+    def __len__(self) -> int:
+        return len(self.name)
+
+    def to_dict(self) -> Dict[str, str]:
         payload: Dict[str, Any] = {}
         if self.name is not EmptyEmbed:
             payload["name"] = self.name
@@ -352,20 +425,16 @@ class Embed:
 
     def __len__(self) -> int:
         total = len(self.title) + len(self.description)
-        for fields in self.fields:
-            total += len(fields.name) + len(fields.value)
-
         for attr in ("footer", "author", "fields"):
-            if not attr or attr is EmptyEmbed:
+            attr_value = getattr(self, attr, None)
+            if not attr_value or attr_value is EmptyEmbed:
                 continue
 
             if attr == "fields":
-                for field in getattr(self, attr):
-                    total += len(field.name) + len(field.value)
-            elif attr == "footer":
-                total += len(getattr(self, attr).text)
-            elif attr == "author":
-                total += len(getattr(self, attr).name)
+                for field in attr_value:
+                    total += len(field)
+            else:
+                total += len(attr_value)
 
         return total
 
@@ -435,7 +504,7 @@ class Embed:
 
     @property
     def footer(self) -> MaybeEmpty[EmbedFooter]:
-        """Returns an ``EmbedFooter`` if a footer is set, otherwise an ``EmbedProxy``."""
+        """Optional[:class:`EmbedFooter`]: The footer of the embed. This is an ``EmbedProxy`` if a footer was not set."""
         return getattr(self, "_footer", EmbedProxy({}))  # type: ignore
 
     @footer.setter
@@ -612,7 +681,7 @@ class Embed:
 
     @property
     def author(self) -> MaybeEmpty[EmbedAuthor]:
-        """Returns an ``EmbedAuthor`` if an author is set, otherwise an ``EmbedProxy``."""
+        """:class:`EmbedAuthor`: The author of the embed. This is an ``EmbedProxy`` if an author was not set."""
         return getattr(self, "_author", EmbedProxy({}))  # type: ignore
 
     @author.setter
@@ -678,7 +747,7 @@ class Embed:
 
     @property
     def fields(self) -> List[EmbedField]:
-        """Returns a list of fields that are in the embed. If any else a empty list is returned."""
+        """List[:class:`EmbedField`]: A list of embed fields. This is an empty list if there are no fields."""
         return getattr(self, "_fields", [])
 
     @fields.setter
@@ -713,7 +782,7 @@ class Embed:
             pass
 
     def append_field(self, field: EmbedField):
-        """Appends a field to the embed.
+        """Appends a :class:`EmbedField` to the embed.
 
         This function returns the class instance to allow for fluent-style
         chaining.
@@ -865,17 +934,7 @@ class Embed:
 
     def to_dict(self) -> EmbedData:
         """Converts this embed object into a dict."""
-
-        # add in the raw data into the dict
-        # fmt: off
-        result = {
-            key[1:]: getattr(self, key)
-            for key in self.__slots__
-            if key[0] == '_' and hasattr(self, key)
-        }
-        # fmt: on
-
-        # deal with basic convenience wrappers
+        result = {}
 
         for attr in ("footer", "author", "fields"):
             attr_value = getattr(self, f"_{attr}", None)
@@ -886,6 +945,13 @@ class Embed:
                 result[attr] = [field.to_dict() for field in attr_value]
             else:
                 result[attr] = attr_value.to_dict()
+
+        for image_attrs in ("image", "thumbnail"):
+            image_value = getattr(self, f"_{image_attrs}", None)
+            if not image_value:
+                continue
+
+            result[image_attrs] = image_value
 
         try:
             colour = result.pop("colour")
