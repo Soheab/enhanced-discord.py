@@ -435,10 +435,12 @@ class Embed:
 
     @property
     def footer(self) -> MaybeEmpty[EmbedFooter]:
+        """Returns an ``EmbedFooter`` if a footer is set, otherwise an ``EmbedProxy``."""
         return getattr(self, "_footer", EmbedProxy({}))  # type: ignore
 
     @footer.setter
     def footer(self, footer: MaybeEmpty[EmbedFooter], /) -> None:
+        """Sets the footer of the embed."""
         if footer is EmptyEmbed:
             del self._footer
             return
@@ -450,6 +452,7 @@ class Embed:
 
     @footer.deleter
     def footer(self) -> None:
+        """Deletes the footer of the embed."""
         try:
             del self._footer
         except AttributeError:
@@ -609,10 +612,12 @@ class Embed:
 
     @property
     def author(self) -> MaybeEmpty[EmbedAuthor]:
+        """Returns an ``EmbedAuthor`` if an author is set, otherwise an ``EmbedProxy``."""
         return getattr(self, "_author", EmbedProxy({}))  # type: ignore
 
     @author.setter
     def author(self, author: MaybeEmpty[EmbedAuthor]):
+        """Sets the author of the embed."""
         if author is EmptyEmbed:
             del self._author
             return
