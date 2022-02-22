@@ -65,7 +65,7 @@ class EmbedProxy:
         inner = ", ".join((f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_")))
         return f"EmbedProxy({inner})"
 
-    def __getattr__(self, _: str) -> _EmptyEmbed:
+    def __getattr__(self, attr: str) -> _EmptyEmbed:
         return EmptyEmbed
 
 
