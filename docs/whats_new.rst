@@ -129,7 +129,7 @@ New Features
     - Add :class:`EmbedFooter`, a class that represents the footer.
     - Add :class:`EmbedAuthor`, a class that represents the author.
     - Add :meth:`Embed.append_field`, a method that takes an instance of :class:`EmbedField` and adds it to the embed.
-
+    - The following kwargs in :meth:`Embed.set_field_at` are now optional: ``name, value, inline``, the previous field's value for each are now used as defaults.
 
 v2.0.0 - Before enhanced-discord.py
 --------

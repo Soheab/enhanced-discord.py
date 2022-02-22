@@ -51,7 +51,6 @@ class _EmptyEmbed:
         return 0
 
 
-MISSING = utils.MISSING
 EmptyEmbed: Final = _EmptyEmbed()
 
 
@@ -139,7 +138,7 @@ class EmbedField:
     def __len__(self) -> int:
         return len(self.name) + len(self.value)
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, Union[str, bool]]:
         return {
             "name": self.name,
             "value": self.value,
@@ -329,6 +328,11 @@ class Embed:
         self.url = url
         self.description = description
 
+        if timestamp:
+            self.timestamp = timestamp
+        if fields:
+            self.fields = list(fields)
+
         if self.title is not EmptyEmbed:
             self.title = str(self.title)
         if self.description is not EmptyEmbed:
@@ -339,10 +343,6 @@ class Embed:
             self.image = str(image)
         if thumbnail is not EmptyEmbed:
             self.thumbnail = str(thumbnail)
-        if timestamp:
-            self.timestamp = timestamp
-        if fields:
-            self.fields = list(fields)
         if footer is not EmptyEmbed:
             self.footer = footer
         if author is not EmptyEmbed:
@@ -504,12 +504,11 @@ class Embed:
 
     @property
     def footer(self) -> MaybeEmpty[EmbedFooter]:
-        """Optional[:class:`EmbedFooter`]: The footer of the embed. This is an ``EmbedProxy`` if a footer was not set."""
+        """:class:`EmbedFooter`: The footer of the embed. This is an ``EmbedProxy`` if a footer was not set."""
         return getattr(self, "_footer", EmbedProxy({}))  # type: ignore
 
     @footer.setter
     def footer(self, footer: MaybeEmpty[EmbedFooter], /) -> None:
-        """Sets the footer of the embed."""
         if footer is EmptyEmbed:
             del self._footer
             return
@@ -521,7 +520,6 @@ class Embed:
 
     @footer.deleter
     def footer(self) -> None:
-        """Deletes the footer of the embed."""
         try:
             del self._footer
         except AttributeError:
@@ -686,7 +684,6 @@ class Embed:
 
     @author.setter
     def author(self, author: MaybeEmpty[EmbedAuthor]):
-        """Sets the author of the embed."""
         if author is EmptyEmbed:
             del self._author
             return
@@ -758,13 +755,13 @@ class Embed:
         -----------
         fields: Iterable[:class:`EmbedField`]
             An iterable of fields to replace the current fields with.
+            Passing an emptpy list or :attr:`Empty` will clear the fields.
         """
         if fields is EmptyEmbed or fields == []:
-            del self.fields
+            self.clear_fields()
             return
 
-        _fields: List[EmbedField] = fields if fields is not EmptyEmbed else []  # type: ignore
-
+        _fields: Iterable[EmbedField] = fields  # type: ignore
         if not all(isinstance(field, EmbedField) for field in _fields):
             raise TypeError("Expected an iterable of EmbedFields.")
 
@@ -781,7 +778,7 @@ class Embed:
         except AttributeError:
             pass
 
-    def append_field(self, field: EmbedField):
+    def append_field(self, field: EmbedField, /):
         """Appends a :class:`EmbedField` to the embed.
 
         This function returns the class instance to allow for fluent-style
@@ -825,14 +822,7 @@ class Embed:
             "value": str(value),
         }
 
-        field = EmbedField(**fields)
-
-        try:
-            self._fields.append(field)
-        except AttributeError:
-            self._fields = [field]
-
-        return self
+        return self.append_field(EmbedField(**fields))
 
     def insert_field_at(self: E, index: int, *, name: Any, value: Any, inline: bool = True) -> E:
         """Inserts a field before a specified index to the embed.
@@ -892,7 +882,7 @@ class Embed:
         except (AttributeError, IndexError):
             pass
 
-    def set_field_at(self: E, index: int, *, name: Any = MISSING, value: Any = MISSING, inline: bool = True) -> E:
+    def set_field_at(self: E, index: int, *, name: Any = None, value: Any = None, inline: bool = True) -> E:
         """Modifies a field to the embed object.
 
         The index must point to a valid pre-existing field.
@@ -906,10 +896,10 @@ class Embed:
             The index of the field to modify.
         name: Optional[:class:`str`]
             The new name of the field.
-            The previous name will be used if this is ``MISSING``.
+            The previous name will be used if this is ``None`` (default).
         value: Optional[:class:`str`]
             The value of the field.
-            The previous name will be used if this is ``MISSING``.
+            The previous name will be used if this is ``None`` (default).
         inline: :class:`bool`
             Whether the field should be displayed inline. Defaults to ``True``.
 
@@ -918,16 +908,18 @@ class Embed:
         IndexError
             An invalid index was provided.
         """
-
         try:
             field = self._fields[index]
         except (AttributeError, TypeError, IndexError):
             raise IndexError("field index out of range")
 
+        if not name and not value and inline == field.inline:
+            return self
+
         field._edit(
-            name=str(name) if name is not MISSING else field.name,
-            value=str(value) if value is not MISSING else field.value,
-            inline=inline,
+            name=str(name or field.name),
+            value=str(value or field.value),
+            inline=inline if inline != field.inline else field.inline,
         )
 
         return self
