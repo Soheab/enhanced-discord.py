@@ -258,27 +258,22 @@ class Embed:
 
         if self.title is not EmptyEmbed:
             self.title = str(self.title)
-
         if self.description is not EmptyEmbed:
             self.description = str(self.description)
-
         if self.url is not EmptyEmbed:
             self.url = str(self.url)
-
+        if image is not EmptyEmbed:
+            self.image = str(image)
+        if thumbnail is not EmptyEmbed:
+            self.thumbnail = str(thumbnail)
         if timestamp:
             self.timestamp = timestamp
-
         if fields:
             self.fields = list(fields)
         if footer is not EmptyEmbed:
             self.footer = footer
         if author is not EmptyEmbed:
             self.author = author
-        if image is not EmptyEmbed:
-            self.image = image
-
-        if thumbnail is not EmptyEmbed:
-            self.thumbnail = thumbnail
 
     @classmethod
     def from_dict(cls: Type[E], data: Mapping[str, Any]) -> E:
