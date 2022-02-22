@@ -173,7 +173,7 @@ class EmbedFooter:
         The proxy URL of the footer icon. If any else :class:`Embed.Empty`.
     """
 
-    text: str
+    text: MaybeEmpty[str] = EmptyEmbed
     icon_url: MaybeEmpty[str] = EmptyEmbed
     proxy_icon_url: MaybeEmpty[str] = EmptyEmbed
 
@@ -503,9 +503,9 @@ class Embed:
             pass
 
     @property
-    def footer(self) -> MaybeEmpty[EmbedFooter]:
-        """:class:`EmbedFooter`: The footer of the embed. This is an ``EmbedProxy`` if a footer was not set."""
-        return getattr(self, "_footer", EmbedProxy({}))  # type: ignore
+    def footer(self) -> EmbedFooter:
+        """:class:`EmbedFooter`: The footer of the embed."""
+        return getattr(self, "_footer", EmbedFooter())  # type: ignore
 
     @footer.setter
     def footer(self, footer: MaybeEmpty[EmbedFooter], /) -> None:
@@ -678,9 +678,9 @@ class Embed:
         return EmbedProxy(getattr(self, "_provider", {}))  # type: ignore
 
     @property
-    def author(self) -> MaybeEmpty[EmbedAuthor]:
-        """:class:`EmbedAuthor`: The author of the embed. This is an ``EmbedProxy`` if an author was not set."""
-        return getattr(self, "_author", EmbedProxy({}))  # type: ignore
+    def author(self) -> EmbedAuthor:
+        """:class:`EmbedAuthor`: The author of the embed."""
+        return getattr(self, "_author", EmbedAuthor())  # type: ignore
 
     @author.setter
     def author(self, author: MaybeEmpty[EmbedAuthor]):
