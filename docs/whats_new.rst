@@ -52,6 +52,7 @@ New Features
 - Add :class:`ProtocolURL`
 - Add support for :attr:`Role.icon` in :meth:`Role.edit`
 - Add :attr:`File.description`
+- Add :attr:`GuildChannel.jump_url <.abc.GuildChannel.jump_url>`
 - Add support for editing files in :meth:`Message.edit`
 - Add support for ``int()`` to all objects with an id attribute which will return the ``.id``
 - Add support for ``str()`` to :class:`Message` returning the :attr:`Message.content`
