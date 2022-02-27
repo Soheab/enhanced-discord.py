@@ -386,7 +386,7 @@ class InteractionResponse:
         """
         return self.responded_at is not None
 
-    async def defer(self, *, ephemeral: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, thinking: bool = False) -> None:
         """|coro|
 
         Defers the interaction response.
@@ -399,6 +399,10 @@ class InteractionResponse:
         ephemeral: :class:`bool`
             Indicates whether the deferred message will eventually be ephemeral.
             This only applies for interactions of type :attr:`InteractionType.application_command`.
+        thinking: :class:`bool`
+            Indicates whether to send a response with a thinking indicator (bot is thinking...).
+            This is always ``True``` for interactions of type :attr:`InteractionType.application_command`.
+            ``False`` otherwise.
 
         Raises
         -------
@@ -413,12 +417,16 @@ class InteractionResponse:
         defer_type: int = 0
         data: Optional[Dict[str, Any]] = None
         parent = self._parent
-        if parent.type is InteractionType.component:
-            defer_type = InteractionResponseType.deferred_message_update.value
-        elif parent.type is InteractionType.application_command:
+        supports_defer_with_message = (InteractionType.component, InteractionType.modal_submit)
+        if parent.type is InteractionType.application_command or (
+            thinking and parent.type in supports_defer_with_message
+        ):
             defer_type = InteractionResponseType.deferred_channel_message.value
             if ephemeral:
                 data = {"flags": 64}
+
+        elif parent.type in (InteractionType.component, InteractionType.modal_submit):
+            defer_type = InteractionResponseType.deferred_message_update.value
 
         if defer_type:
             adapter = async_context.get()
