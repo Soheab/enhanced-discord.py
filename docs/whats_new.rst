@@ -74,6 +74,7 @@ New Features
     - |commands| Add :meth:`Context.defer <.ext.commands.Context.defer>`
     - Add :class:`~ext.commands.Option`
 - Add ``delete_after`` kwarg to Interaction responses
+- Add ``thinking`` kwarg to :meth:`InteractionResponse.defer`
 - Update permissions
     - Add :attr:`Permissions.start_embedded_activities`
     - Add :attr:`Permissions.admin` as alias to :attr:`Permissions.administrator`
