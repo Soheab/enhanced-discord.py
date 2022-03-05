@@ -583,10 +583,10 @@ class Loop(Generic[LF]):
         idx = -1
         for idx, time in enumerate(self._time):
             if time >= time_now:
-                self._time_index = idx + 1
+                self._time_index = idx
                 break
         else:
-            self._time_index = 0
+            self._time_index = idx + 1
 
     def _get_time_parameter(
         self,
