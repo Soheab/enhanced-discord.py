@@ -751,7 +751,7 @@ class WebhookMessage(Message):
             allowed_mentions=allowed_mentions,
         )
 
-    async def delete(self, *, delay: Optional[float] = None) -> None:
+    async def delete(self, *, delay: Optional[float] = None, silent: bool = False) -> None:
         """|coro|
 
         Deletes the message.
@@ -761,6 +761,10 @@ class WebhookMessage(Message):
         delay: Optional[:class:`float`]
             If provided, the number of seconds to wait before deleting the message.
             The waiting is done in the background and deletion failures are ignored.
+        silent: :class:`bool`
+            If silent is set to ``True``, the error will not be raised, it will be ignored.
+            This defaults to ``False``
+
 
         Raises
         ------
@@ -771,7 +775,11 @@ class WebhookMessage(Message):
         HTTPException
             Deleting the message failed.
         """
-        await self._state._webhook.delete_message(self.id, delay=delay)
+        try:
+            await self._state._webhook.delete_message(self.id, delay=delay)
+        except Exception:
+            if not silent:
+                raise
 
 
 class BaseWebhook(Hashable):

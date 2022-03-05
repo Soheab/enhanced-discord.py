@@ -368,7 +368,7 @@ class Interaction:
 
         return message
 
-    async def delete_original_message(self, delay: Optional[float] = None) -> None:
+    async def delete_original_message(self, delay: Optional[float] = None, silent: bool = False) -> None:
         """|coro|
 
         Deletes the original interaction response message.
@@ -381,6 +381,9 @@ class Interaction:
         delay: Optional[:class:`float`]
             If provided, the number of seconds to wait before deleting the message.
             The waiting is done in the background and deletion failures are ignored.
+        silent: :class:`bool`
+            If silent is set to ``True``, the error will not be raised, it will be ignored.
+            This defaults to ``False``
 
         Raises
         -------
@@ -407,8 +410,11 @@ class Interaction:
 
             asyncio.create_task(inner_call())
         else:
-            await to_call
-
+            try:
+                await to_call
+            except Exception:
+                if not silent:
+                    raise
 
 class InteractionResponse:
     """Represents a Discord interaction response.

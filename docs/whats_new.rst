@@ -16,8 +16,7 @@ in specific versions.
 v2.0.0 - Moving to enhanced-discord.py
 --------
 
-This version was partly developed by Danny, and partly by the enhanced-discord.py contributors.
-The library has been updated with breaking changes, and as such the major version was changed.
+Starting from here, new features were all made by the enhanced-discord.py contributors.
 
 In this part we will show everything that was added or changed after discord.py ended maintenance. 
 
@@ -35,6 +34,7 @@ Breaking Changes
 - Intents.default() has been removed
 - intents is now a required kwarg in :class:`Client` and :class:`~ext.commands.Bot`
 - Renamed ``MessageType.application_command`` to :attr:`MessageType.chat_input_command` to be consistent with the API
+- Added :class:`ui.Item` arg to :meth:`View.interaction_check`
 
 New Features
 ~~~~~~~~~~~~~~
@@ -60,7 +60,7 @@ New Features
 - Added support for timeout
     - Add :attr:`Guild.timed_out_members`
     - Add :attr:`Member.timed_out`
-    - Add timeout_until kwarg to :meth:`Member.edit`
+    - Add ``timeout_until`` kwarg to :meth:`Member.edit`
 - Add :meth:`Guild.try_member`
 - Add ``with_counts`` kwarg to :meth:`Client.fetch_guild`
 - Add :attr:`Guild.approximate_presence_count`
@@ -71,7 +71,7 @@ New Features
 - Add support for slash command in ext.commands
     - |commands| Add :meth:`Bot.process_slash_commands <.ext.commands.Bot.process_slash_commands>`
     - |commands| Add :meth:`Context.author_permissions <.ext.commands.Context.author_permissions>`
-    - |commands| Add ephemeral kwarg to :meth:`Context.send <.ext.commands.Context.send>` for slash commands only
+    - |commands| Add ``ephemeral`` kwarg to :meth:`Context.send <.ext.commands.Context.send>` for slash commands only
     - |commands| Add :meth:`Context.defer <.ext.commands.Context.defer>`
     - Add :class:`~ext.commands.Option`
 - Add ``delete_after`` kwarg to Interaction responses
@@ -122,7 +122,7 @@ New Features
 v2.0.0 - Before enhanced-discord.py
 --------
 
-This version was partly developed by Danny, and partly by the enhanced-discord.py contributors.
+This version was developed by the original discord.py contributors before they decided to end development.
 The library has been updated with breaking changes, and as such the major version was changed.
 
 In this part we will show everything that was added or changed in v2 by the original discord.py developers.
